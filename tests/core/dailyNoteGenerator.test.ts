@@ -5,8 +5,8 @@ import { Task } from '../../src/core/types'
 const tasks: Task[] = [
   { id: 'task-2026-03-29-001', name: 'Overdue task', due: '2026-03-27', tags: ['work', 'priority/high', 'status/todo'], created: '2026-03-27', completed: null },
   { id: 'task-2026-03-29-002', name: 'Due today', due: '2026-03-29', tags: ['personal', 'priority/medium', 'status/todo'], created: '2026-03-29', completed: null },
-  { id: 'task-2026-03-29-003', name: 'This week', due: '2026-03-31', tags: ['work', 'priority/low', 'status/todo'], created: '2026-03-29', completed: null },
-  { id: 'task-2026-03-29-004', name: 'Next week', due: '2026-04-06', tags: ['personal', 'priority/medium', 'status/todo'], created: '2026-03-29', completed: null },
+  { id: 'task-2026-03-29-003', name: 'This week', due: '2026-03-28', tags: ['work', 'priority/low', 'status/todo'], created: '2026-03-29', completed: null },
+  { id: 'task-2026-03-29-004', name: 'Next week', due: '2026-04-01', tags: ['personal', 'priority/medium', 'status/todo'], created: '2026-03-29', completed: null },
 ]
 
 describe('dailyNoteGenerator', () => {

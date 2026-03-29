@@ -1,39 +1,6 @@
 import dayjs from 'dayjs'
-import isoWeek from 'dayjs/plugin/isoWeek'
 import { Task } from './types'
-import { isToday, isOverdue } from '../utils/dateUtils'
-
-dayjs.extend(isoWeek)
-
-// Use Sunday-based weeks so that when today is Sunday the current week
-// extends forward into the next calendar days (Sun–Sat), matching the
-// way most people think about "this week" when standing on a Sunday.
-function sunWeekStart(ref?: dayjs.Dayjs): string {
-  const d = ref ?? dayjs()
-  return d.day(0).format('YYYY-MM-DD')
-}
-
-function sunWeekEnd(ref?: dayjs.Dayjs): string {
-  const d = ref ?? dayjs()
-  return d.day(6).format('YYYY-MM-DD')
-}
-
-function isThisWeek(isoDate: string): boolean {
-  return isoDate >= sunWeekStart() && isoDate <= sunWeekEnd()
-}
-
-function isNextWeek(isoDate: string): boolean {
-  const next = dayjs().add(7, 'day')
-  return isoDate >= sunWeekStart(next) && isoDate <= sunWeekEnd(next)
-}
-
-function startOfWeek(): string {
-  return sunWeekStart()
-}
-
-function endOfWeek(): string {
-  return sunWeekEnd()
-}
+import { isToday, isThisWeek, isNextWeek, isOverdue, startOfWeek, endOfWeek } from '../utils/dateUtils'
 
 const DOMAINS = ['work', 'personal', 'personal-projects']
 
@@ -120,9 +87,9 @@ export function generateThisWeekNote(tasks: Task[]): string {
 }
 
 export function generateNextWeekNote(tasks: Task[]): string {
-  const next = dayjs().add(7, 'day')
-  const nextStart = sunWeekStart(next)
-  const nextEnd = sunWeekEnd(next)
+  const nextWeekDate = dayjs().add(7, 'day').format('YYYY-MM-DD')
+  const nextStart = startOfWeek(nextWeekDate)
+  const nextEnd = endOfWeek(nextWeekDate)
   const active = tasks.filter(isActive).filter((t) => t.due && isNextWeek(t.due))
   const timestamp = dayjs().format('YYYY-MM-DD HH:mm')
   const rangeStr = `${dayjs(nextStart).format('MMM D')}–${dayjs(nextEnd).format('MMM D, YYYY')}`
