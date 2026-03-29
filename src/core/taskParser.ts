@@ -106,7 +106,7 @@ export function parseTaskInput(input: string, _config: Config): ParsedInput {
   name = stripDomainPhrases(name)
   // Remove priority keywords from name
   name = name.replace(/\b(urgent|ASAP|critical|important|no rush|whenever|someday)\b/gi, '')
-  name = name.replace(/[-:,]+$/, '').replace(/\s+/g, ' ').trim()
+  name = name.replace(/^[\s\-:,]+/, '').replace(/[-:,]+$/, '').replace(/\s+/g, ' ').trim()
 
   return { name, due, tags, needsInbox }
 }
