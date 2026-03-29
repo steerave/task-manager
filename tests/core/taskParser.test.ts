@@ -78,4 +78,9 @@ describe('parseTaskInput', () => {
     const result = parseTaskInput('Buy groceries for personal', mockConfig)
     expect(result.tags).toContain('status/todo')
   })
+
+  it('strips leading punctuation after priority keyword removal', () => {
+    const result = parseTaskInput('Urgent: fix production bug for work', mockConfig)
+    expect(result.name).toBe('fix production bug')
+  })
 })
