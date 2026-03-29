@@ -1,0 +1,18 @@
+# Secrets
+.env
+.env.*
+!.env.template
+
+# Logs & cache
+logs/
+.claude/
+
+# Node.js / TypeScript
+node_modules/
+dist/
+*.js.map
+coverage/
+
+# Runtime state (lives in the vault, not the repo)
+.task-index.json
+config.json
