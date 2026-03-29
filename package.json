@@ -1,7 +1,7 @@
 {
   "name": "task-manager",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "description": "Personal CLI task manager for Obsidian",
   "main": "index.js",
   "directories": {
     "doc": "docs"
@@ -11,32 +11,32 @@
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint src tests --ext .ts",
+    "lint": "eslint src tests --ext .ts --no-error-on-unmatched-pattern",
     "format": "prettier --write src tests"
   },
   "bin": {
     "task": "./dist/cli.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Sarun Teeravechyan",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "chalk": "^5.6.2",
+    "chalk": "^4.1.2",
     "chrono-node": "^2.9.0",
     "commander": "^14.0.3",
     "dayjs": "^1.11.20",
     "fs-extra": "^11.3.4",
     "gray-matter": "^4.0.3",
-    "inquirer": "^13.3.2"
+    "inquirer": "^8.2.7"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "@types/inquirer": "^9.0.9",
+    "@types/inquirer": "^8.2.12",
     "@types/node": "^25.5.0",
     "@typescript-eslint/eslint-plugin": "^8.57.2",
     "@typescript-eslint/parser": "^8.57.2",
-    "eslint": "^10.1.0",
+    "eslint": "^8.57.1",
     "prettier": "^3.8.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
