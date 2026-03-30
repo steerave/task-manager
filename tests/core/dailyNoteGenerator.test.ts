@@ -46,13 +46,19 @@ describe('dailyNoteGenerator', () => {
     expect(note).toContain('[[task-2026-03-29-001|Overdue task]]')
   })
 
-  it('excludes done tasks', () => {
+  it('excludes done tasks from Due Today but shows in Completed Today if completed today', () => {
     const withDone = [...tasks, {
       id: 'task-done', name: 'Already done', due: '2026-03-29',
       tags: ['work', 'status/done', 'priority/low'], created: '2026-03-29', completed: '2026-03-29'
     }]
     const note = generateDailyNote(withDone)
-    expect(note).not.toContain('Already done')
+    // Should NOT appear in Due Today section
+    const dueTodayIdx = note.indexOf('### Due Today')
+    const completedIdx = note.indexOf('### Completed Today')
+    const alreadyDoneIdx = note.indexOf('Already done')
+    expect(alreadyDoneIdx).toBeGreaterThan(completedIdx)
+    // Should show as checked off
+    expect(note).toContain('- [x] [[task-done|Already done]]')
   })
 
   it('skips domain headers when no tasks exist for that domain', () => {

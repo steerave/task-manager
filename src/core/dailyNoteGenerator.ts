@@ -22,7 +22,8 @@ function taskLine(task: Task): string {
   const domain = getDomain(task)
   const priority = getPriority(task)
   const due = task.due ? ` *(due ${dayjs(task.due).format('MMM D')})*` : ''
-  return `- [ ] [[${task.id}|${task.name}]]${due} — ${domain} · ${priority} <!-- task:${task.id} -->`
+  const checkbox = task.tags.includes('status/done') ? '- [x]' : '- [ ]'
+  return `${checkbox} [[${task.id}|${task.name}]]${due} — ${domain} · ${priority} <!-- task:${task.id} -->`
 }
 
 function isActive(task: Task): boolean {
@@ -59,6 +60,7 @@ export function generateDailyNote(tasks: Task[], events?: CalendarEvent[]): stri
 
   const overdue = active.filter((t) => t.due && isOverdue(t.due))
   const dueToday = active.filter((t) => t.due && isToday(t.due))
+  const completedToday = tasks.filter((t) => t.tags.includes('status/done') && t.completed && isToday(t.completed))
   const inbox = active.filter((t) => t.tags.includes('status/inbox'))
   const thisWeekTasks = active.filter((t) => t.due && isThisWeek(t.due))
   const nextWeekTasks = active.filter((t) => t.due && isNextWeek(t.due))
@@ -88,7 +90,13 @@ export function generateDailyNote(tasks: Task[], events?: CalendarEvent[]): stri
     sections.push('')
   }
 
-  if (overdue.length === 0 && dueToday.length === 0 && inbox.length === 0) {
+  if (completedToday.length > 0) {
+    sections.push('### Completed Today')
+    completedToday.forEach((t) => sections.push(taskLine(t)))
+    sections.push('')
+  }
+
+  if (overdue.length === 0 && dueToday.length === 0 && inbox.length === 0 && completedToday.length === 0) {
     sections.push('*(Nothing due today)*')
     sections.push('')
   }
