@@ -55,6 +55,7 @@ tests/
 - **`/today` is atomic:** Checkbox sync runs before regeneration. Always syncs first.
 - **Inbox tagging is mandatory:** When domain or due date cannot be inferred, tag `status/inbox` — never silently mis-tag.
 - **Task ID format:** `YYMMDD-kebab-name-0001` — date prefix, task name slugified with filler words dropped, 4-digit sequence. Example: `260330-purchase-fruits-aldis-0001`.
+- **Calendar credentials live in `.env` only** — never in `config.json` which could sync via Obsidian.
 
 ---
 
@@ -65,6 +66,8 @@ npm run dev        # Run CLI in dev mode (ts-node)
 npm run build      # Compile TypeScript → dist/
 npm test           # Run vitest
 npm run lint       # ESLint check
+task calendar add "event on date at time"  # Create iCloud event
+task calendar today                         # Refresh daily note with events
 ```
 
 ---

@@ -88,6 +88,19 @@ Generates a single consolidated Obsidian note (`YYYYMMDD - Daily Task.md`) with:
 
 Each task in the note is a clickable wiki-link to its source file. Checking off a task checkbox in Obsidian and running `task today` again will automatically mark that task as done.
 
+### Calendar Integration
+
+```bash
+task calendar add "Bettendorf swim meet on 4/26 from 1pm to 3pm"   # Timed event
+task calendar add "Dentist appointment tomorrow at 2pm"              # 1-hour default
+task calendar add "Mom's birthday on 5/15"                           # All-day event
+task calendar today                                                   # Refresh daily note with events
+```
+
+Events from your iCloud calendar appear in the daily note under "Events Today". Creating events from the CLI adds them directly to your iCloud Home calendar.
+
+**Setup:** Generate an app-specific password at appleid.apple.com and add your credentials to `.env` (see `.env.template`).
+
 ### Domain and Tag Management
 
 ```bash

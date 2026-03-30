@@ -3,6 +3,16 @@
 All notable changes to the Task Manager are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+- `task calendar add` command — create events on iCloud Home calendar using natural language
+- `task calendar today` command — regenerate daily note with fresh calendar events
+- Events Today section in the daily note showing today's iCloud calendar events after Due Today
+- All-day event support (no time given = all-day)
+- Default 1-hour duration when only a start time is provided
+- Graceful fallback when iCloud credentials aren't configured or network is unavailable
+
 ## [0.1.0] - 2026-03-30
 
 ### Added
