@@ -55,7 +55,7 @@ export function parseEventInput(input: string): ParsedEventInput {
   }
   // Clean up filler words around the date
   name = name
-    .replace(/\b(from|on|at)\b/gi, '')
+    .replace(/\b(from|on|at|for|due)\b/gi, '')
     .replace(/\s+/g, ' ')
     .replace(/^[\s\-:,]+/, '')
     .replace(/[-:,]+$/, '')
