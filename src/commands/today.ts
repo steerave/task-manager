@@ -4,20 +4,19 @@ import chalk from 'chalk'
 import dayjs from 'dayjs'
 import { Config } from '../core/types'
 import { scanTasks, getTasksDir } from '../core/vaultScanner'
-import { generateTodayNote, generateThisWeekNote, generateNextWeekNote, parseCheckedTaskIds } from '../core/dailyNoteGenerator'
+import { generateDailyNote, parseCheckedTaskIds } from '../core/dailyNoteGenerator'
 import { taskFilePath, readTask, updateTask } from '../core/taskFile'
 import { today } from '../utils/dateUtils'
 
-function getDailyNoteDir(config: Config): string {
-  const dateStr = dayjs().format('YYYY-MM-DD')
-  return path.join(config.vaultPath, 'DailyNotes', dateStr)
+function getDailyNoteFile(config: Config): string {
+  const dateStr = dayjs().format('YYYYMMDD')
+  return path.join(config.vaultPath, 'DailyNotes', `${dateStr} - Daily Task.md`)
 }
 
-async function syncCheckboxes(config: Config, noteDir: string): Promise<number> {
-  const todayFile = path.join(noteDir, 'today.md')
-  if (!(await fs.pathExists(todayFile))) return 0
+async function syncCheckboxes(config: Config, noteFile: string): Promise<number> {
+  if (!(await fs.pathExists(noteFile))) return 0
 
-  const content = await fs.readFile(todayFile, 'utf8')
+  const content = await fs.readFile(noteFile, 'utf8')
   const checkedIds = parseCheckedTaskIds(content)
   if (checkedIds.length === 0) return 0
 
@@ -40,23 +39,19 @@ async function syncCheckboxes(config: Config, noteDir: string): Promise<number> 
 }
 
 export async function runToday(config: Config): Promise<void> {
-  const noteDir = getDailyNoteDir(config)
+  const noteFile = getDailyNoteFile(config)
+  const noteDir = path.dirname(noteFile)
   await fs.ensureDir(noteDir)
 
-  // Step 1: Sync checkboxes from existing today.md
-  const synced = await syncCheckboxes(config, noteDir)
+  // Step 1: Sync checkboxes from existing daily note
+  const synced = await syncCheckboxes(config, noteFile)
 
   // Step 2: Scan all tasks (with updated done states)
   const tasks = await scanTasks(config)
 
-  // Step 3: Generate and write all three notes
-  const todayNote = generateTodayNote(tasks)
-  const thisWeekNote = generateThisWeekNote(tasks)
-  const nextWeekNote = generateNextWeekNote(tasks)
-
-  await fs.writeFile(path.join(noteDir, 'today.md'), todayNote, 'utf8')
-  await fs.writeFile(path.join(noteDir, 'this-week.md'), thisWeekNote, 'utf8')
-  await fs.writeFile(path.join(noteDir, 'next-week.md'), nextWeekNote, 'utf8')
+  // Step 3: Generate and write the consolidated daily note
+  const note = generateDailyNote(tasks)
+  await fs.writeFile(noteFile, note, 'utf8')
 
   const todayTasks = tasks.filter((t) => t.due === today() && !t.tags.includes('status/done'))
   console.log(
@@ -64,5 +59,5 @@ export async function runToday(config: Config): Promise<void> {
       `Notes updated: ${synced} tasks marked done · today: ${todayTasks.length} tasks`
     )
   )
-  console.log(chalk.gray(`   ${noteDir}`))
+  console.log(chalk.gray(`   ${noteFile}`))
 }
