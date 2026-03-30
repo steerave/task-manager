@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { generateDailyNote, parseCheckedTaskIds } from '../../src/core/dailyNoteGenerator'
 import { Task } from '../../src/core/types'
+import { CalendarEvent } from '../../src/calendar/types'
 
 const tasks: Task[] = [
   { id: 'task-2026-03-29-001', name: 'Overdue task', due: '2026-03-27', tags: ['work', 'priority/high', 'status/todo'], created: '2026-03-27', completed: null },
@@ -78,5 +79,36 @@ describe('dailyNoteGenerator', () => {
     `.trim()
     const ids = parseCheckedTaskIds(noteContent)
     expect(ids).toEqual(['task-2026-03-29-001'])
+  })
+
+  it('renders Events Today section after Due Today when events are provided', () => {
+    const events: CalendarEvent[] = [
+      { uid: 'e1', name: 'Team standup', date: '2026-03-29', startTime: '09:00', endTime: '09:30', isAllDay: false },
+      { uid: 'e2', name: "Mom's birthday", date: '2026-03-29', startTime: null, endTime: null, isAllDay: true },
+    ]
+    const note = generateDailyNote(tasks, events)
+    expect(note).toContain('### Events Today')
+    expect(note).toContain('09:00–09:30 · Team standup')
+    expect(note).toContain("Mom's birthday *(all day)*")
+  })
+
+  it('puts Events Today after Due Today', () => {
+    const events: CalendarEvent[] = [
+      { uid: 'e1', name: 'Meeting', date: '2026-03-29', startTime: '10:00', endTime: '11:00', isAllDay: false },
+    ]
+    const note = generateDailyNote(tasks, events)
+    const dueTodayIndex = note.indexOf('### Due Today')
+    const eventsIndex = note.indexOf('### Events Today')
+    expect(dueTodayIndex).toBeLessThan(eventsIndex)
+  })
+
+  it('skips Events Today section when no events', () => {
+    const note = generateDailyNote(tasks, [])
+    expect(note).not.toContain('### Events Today')
+  })
+
+  it('skips Events Today section when events is undefined', () => {
+    const note = generateDailyNote(tasks)
+    expect(note).not.toContain('### Events Today')
   })
 })

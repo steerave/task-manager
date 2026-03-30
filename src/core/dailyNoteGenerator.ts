@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import { Task } from './types'
+import { CalendarEvent } from '../calendar/types'
 import { isToday, isThisWeek, isNextWeek, isOverdue, startOfWeek, endOfWeek } from '../utils/dateUtils'
 
 const DOMAINS = ['work', 'personal', 'personal-projects']
@@ -41,7 +42,7 @@ function renderDomainGroups(tasks: Task[]): string[] {
   return lines
 }
 
-export function generateDailyNote(tasks: Task[]): string {
+export function generateDailyNote(tasks: Task[], events?: CalendarEvent[]): string {
   const active = tasks.filter(isActive)
   const dateStr = dayjs().format('MMMM D, YYYY')
   const fileTitle = dayjs().format('YYYYMMDD')
@@ -89,6 +90,19 @@ export function generateDailyNote(tasks: Task[]): string {
 
   if (overdue.length === 0 && dueToday.length === 0 && inbox.length === 0) {
     sections.push('*(Nothing due today)*')
+    sections.push('')
+  }
+
+  // ── Events Today ──
+  if (events && events.length > 0) {
+    sections.push('### Events Today')
+    for (const event of events) {
+      if (event.isAllDay) {
+        sections.push(`- ${event.name} *(all day)*`)
+      } else {
+        sections.push(`- ${event.startTime}–${event.endTime} · ${event.name}`)
+      }
+    }
     sections.push('')
   }
 
