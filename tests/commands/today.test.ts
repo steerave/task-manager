@@ -31,25 +31,27 @@ describe('runToday', () => {
     await fs.remove(tmpDir)
   })
 
-  it('creates today.md, this-week.md, next-week.md in dated subfolder', async () => {
+  it('creates a single consolidated daily note in DailyNotes/', async () => {
     await addTask('Work report for work due today', config)
     await runToday(config)
-    const noteDir = path.join(tmpDir, 'DailyNotes', '2026-03-29')
-    expect(await fs.pathExists(path.join(noteDir, 'today.md'))).toBe(true)
-    expect(await fs.pathExists(path.join(noteDir, 'this-week.md'))).toBe(true)
-    expect(await fs.pathExists(path.join(noteDir, 'next-week.md'))).toBe(true)
+    const noteFile = path.join(tmpDir, 'DailyNotes', '20260329 - Daily Task.md')
+    expect(await fs.pathExists(noteFile)).toBe(true)
+    const content = await fs.readFile(noteFile, 'utf8')
+    expect(content).toContain('## Today')
+    expect(content).toContain('## This Week')
+    expect(content).toContain('## Next Week')
   })
 
-  it('syncs checked checkboxes from existing today.md and marks tasks done', async () => {
+  it('syncs checked checkboxes from existing daily note and marks tasks done', async () => {
     await addTask('Work report for work due today', config)
     const tasks = await scanTasks(config)
     const taskId = tasks[0].id
 
-    // Simulate a pre-existing today.md with the task checked off
-    const noteDir = path.join(tmpDir, 'DailyNotes', '2026-03-29')
+    // Simulate a pre-existing daily note with the task checked off
+    const noteDir = path.join(tmpDir, 'DailyNotes')
     await fs.ensureDir(noteDir)
     await fs.writeFile(
-      path.join(noteDir, 'today.md'),
+      path.join(noteDir, '20260329 - Daily Task.md'),
       `- [x] Work report — Work · High <!-- task:${taskId} -->\n`
     )
 

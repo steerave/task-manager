@@ -43,19 +43,19 @@ describe('End-to-End: add → check off in Obsidian → /today marks done', () =
 
     const taskId = tasks[0].id
 
-    // 3. First /today run — generates notes
+    // 3. First /today run — generates consolidated daily note
     await runToday(config)
-    const noteDir = path.join(tmpDir, 'DailyNotes', '2026-03-29')
-    const todayContent = await fs.readFile(path.join(noteDir, 'today.md'), 'utf8')
-    expect(todayContent).toContain('Prepare Q2 roadmap')
-    expect(todayContent).toContain(`<!-- task:${taskId} -->`)
+    const noteFile = path.join(tmpDir, 'DailyNotes', '20260329 - Daily Task.md')
+    const noteContent = await fs.readFile(noteFile, 'utf8')
+    expect(noteContent).toContain('Prepare Q2 roadmap')
+    expect(noteContent).toContain(`<!-- task:${taskId} -->`)
 
     // 4. Simulate user checking off the task in Obsidian
-    const checkedContent = todayContent.replace(
-      `- [ ] Prepare Q2 roadmap`,
-      `- [x] Prepare Q2 roadmap`
+    const checkedContent = noteContent.replace(
+      '- [ ] [[',
+      '- [x] [['
     )
-    await fs.writeFile(path.join(noteDir, 'today.md'), checkedContent, 'utf8')
+    await fs.writeFile(noteFile, checkedContent, 'utf8')
 
     // 5. Second /today run — should sync the checkbox and mark task done
     await runToday(config)

@@ -38,7 +38,7 @@ src/
     setupWizard.ts          # First-run interactive setup
   utils/
     dateUtils.ts            # dayjs helpers
-    idGenerator.ts          # Task ID generation (task-YYYY-MM-DD-NNN)
+    idGenerator.ts          # Task ID generation (YYMMDD-slug-0001)
 tests/
   core/                     # Unit tests for core modules
   commands/                 # Unit tests for command handlers
@@ -54,6 +54,7 @@ tests/
 - **config.json and .task-index.json live in the vault**, not the repo — they are gitignored.
 - **`/today` is atomic:** Checkbox sync runs before regeneration. Always syncs first.
 - **Inbox tagging is mandatory:** When domain or due date cannot be inferred, tag `status/inbox` — never silently mis-tag.
+- **Task ID format:** `YYMMDD-kebab-name-0001` — date prefix, task name slugified with filler words dropped, 4-digit sequence. Example: `260330-purchase-fruits-aldis-0001`.
 
 ---
 

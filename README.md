@@ -1,6 +1,19 @@
 # Task Manager
 
-A personal CLI task manager that stores tasks as markdown files in your Obsidian vault.
+A personal CLI task manager that stores tasks as markdown files in your Obsidian vault. Add tasks in plain English, get organized daily summaries, and check off tasks directly in Obsidian.
+
+## Features
+
+- **Natural language task creation** — type `task add "call dentist next Tuesday personal"` and the tool infers the due date, domain, priority, and category automatically
+- **Smart tagging** — domains (Work, Personal, Personal Projects), priorities (High/Medium/Low), and categories (Health, Finance, Errands, etc.) are detected from your input
+- **Inbox for ambiguous tasks** — when the tool can't confidently categorize a task, it flags it as Inbox so nothing gets silently mis-tagged
+- **Consolidated daily note** — run `task today` to generate a single Obsidian note with three sections: Today, This Week, and Next Week
+- **Two-way checkbox sync** — check off a task in Obsidian's daily note, and the next `task today` run marks the source task file as done automatically
+- **Obsidian wiki-links** — every task in the daily note links directly to its task file in your vault
+- **Flexible filtering** — list tasks by domain, due date, priority, or status
+- **Canonical tag registry** — tags are constrained to a defined list in `config.json`, keeping your Obsidian Dataview queries consistent
+- **Extensible domains and tags** — add new domains or tags via `task domains add` and `task tags add`
+- **Human-readable storage** — every task is a plain markdown file with YAML frontmatter, editable in Obsidian or any text editor
 
 ## Requirements
 
@@ -22,24 +35,77 @@ npm link   # makes `task` available globally
 ```bash
 task add "test task"
 ```
-The setup wizard runs automatically on first use and asks for your vault path.
+
+The setup wizard runs automatically on first use and asks for your Obsidian vault path. The config is saved so every command after that just works.
 
 ## Commands
 
+### Adding Tasks
+
 ```bash
-task add "Call dentist next Tuesday"          # Add a task
-task list                                      # List all tasks
-task list --domain work --due this-week        # Filter tasks
-task list --done                               # Include completed tasks
-task done task-2026-03-29-001                  # Mark done
-task update task-2026-03-29-001 --priority high  # Update
-task delete task-2026-03-29-001               # Delete
-task today                                     # Generate daily notes + sync checkboxes
-task domains list                              # List domains
-task domains add Finance                       # Add domain
-task tags list                                 # List all canonical tags
-task tags add "research"                       # Add category tag
+task add "Call dentist next Tuesday"
+task add "Finish API integration by Friday for work"
+task add "Learn Rust basics - personal project, no rush"
 ```
+
+The parser automatically detects:
+- **Due dates** from phrases like "next Tuesday", "by Friday", "end of month"
+- **Domains** from "for work", "side project", "personal"
+- **Priority** from "urgent", "ASAP" (high), "no rush", "whenever" (low)
+- **Categories** from keywords like "dentist" (health), "groceries" (errands), "budget" (finance)
+
+### Listing and Filtering
+
+```bash
+task list                              # All active tasks (hides completed)
+task list --domain work                # Only work tasks
+task list --due today                  # Due today
+task list --due this-week              # Due this week
+task list --priority high              # High priority only
+task list --done                       # Include completed tasks
+```
+
+### Managing Tasks
+
+```bash
+task done 260330-purchase-fruits-aldis-0001      # Mark done
+task update 260330-call-dentist-0001 --priority high   # Change priority
+task update 260330-call-dentist-0001 --domain work     # Change domain
+task update 260330-call-dentist-0001 --due 2026-04-05  # Change due date
+task delete 260330-call-dentist-0001                   # Permanently delete
+```
+
+### Daily Note Generation
+
+```bash
+task today
+```
+
+Generates a single consolidated Obsidian note (`YYYYMMDD - Daily Task.md`) with:
+- **Today** — overdue tasks + tasks due today, plus any inbox items needing triage
+- **This Week** — tasks due this week, grouped by domain (empty domains are hidden)
+- **Next Week** — tasks due next week, grouped by domain
+
+Each task in the note is a clickable wiki-link to its source file. Checking off a task checkbox in Obsidian and running `task today` again will automatically mark that task as done.
+
+### Domain and Tag Management
+
+```bash
+task domains list                      # List all domains
+task domains add Finance               # Add a new domain
+task tags list                         # List all canonical tags
+task tags add "research"               # Add a category tag
+task tags add "priority/critical" --category priorities  # Add to specific category
+```
+
+## Task ID Format
+
+Task files are named `YYMMDD-slug-0001.md` where:
+- `YYMMDD` is the creation date
+- `slug` is the task name in kebab-case with filler words removed
+- `0001` is a 4-digit sequence number
+
+Example: `260330-purchase-fruits-aldis-0001.md`
 
 ## Shell Alias (optional)
 
@@ -55,20 +121,18 @@ Then: `t "Call dentist next Tuesday personal"`
 
 ```
 /YourVault
-  /Tasks            ← all task files (auto-created)
+  /Tasks                          ← all task files (flat, auto-created)
   /DailyNotes
-    /YYYY-MM-DD
-      today.md
-      this-week.md
-      next-week.md
-  config.json       ← created on first run
+    20260330 - Daily Task.md      ← consolidated daily note
+    20260331 - Daily Task.md
+  config.json                     ← domains, tags, vault path (created on first run)
 ```
 
 ## Development
 
 ```bash
-npm run dev        # Run CLI in dev mode
+npm run dev        # Run CLI in dev mode (ts-node)
 npm run build      # Compile TypeScript
-npm test           # Run tests
+npm test           # Run tests (52 tests)
 npm run lint       # ESLint check
 ```

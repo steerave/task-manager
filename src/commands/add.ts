@@ -11,7 +11,7 @@ export async function addTask(input: string, config: Config): Promise<void> {
   const parsed = parseTaskInput(input, config)
   const { valid: tags } = filterToCanonical(parsed.tags, config)
   const tasksDir = getTasksDir(config)
-  const id = await generateTaskId(tasksDir)
+  const id = await generateTaskId(tasksDir, parsed.name)
 
   const task = {
     id,

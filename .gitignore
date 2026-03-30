@@ -5,7 +5,7 @@
 
 # Logs & cache
 logs/
-.claude/
+.claude/settings.local.json
 
 # Node.js / TypeScript
 node_modules/

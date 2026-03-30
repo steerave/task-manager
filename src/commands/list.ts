@@ -8,7 +8,7 @@ function formatTask(task: Task): string {
   const priority = task.tags.find((t) => t.startsWith('priority/'))?.replace('priority/', '') ?? 'medium'
   const due = task.due ? dayjs(task.due).format('MMM D') : 'no date'
   const status = task.tags.includes('status/done') ? chalk.gray('[done]') : ''
-  return `  ${chalk.cyan(task.id.slice(-7))} ${task.name} ${chalk.gray(`— ${domain} · ${priority} · ${due}`)} ${status}`
+  return `  ${chalk.cyan(task.id)} ${task.name} ${chalk.gray(`— ${domain} · ${priority} · ${due}`)} ${status}`
 }
 
 export async function listTasks(config: Config, filter: TaskFilter, showDone = false): Promise<void> {
