@@ -26,9 +26,12 @@
     "chrono-node": "^2.9.0",
     "commander": "^14.0.3",
     "dayjs": "^1.11.20",
+    "dotenv": "^17.3.1",
     "fs-extra": "^11.3.4",
     "gray-matter": "^4.0.3",
-    "inquirer": "^8.2.7"
+    "inquirer": "^8.2.7",
+    "node-ical": "^0.25.6",
+    "tsdav": "^2.1.8"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
