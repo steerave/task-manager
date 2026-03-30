@@ -11,6 +11,7 @@ import { updateTaskCmd } from './commands/update'
 import { deleteTask } from './commands/delete'
 import { runToday } from './commands/today'
 import { listDomains, addDomain, listTags, addTag } from './commands/config'
+import { addCalendarEvent } from './commands/calendar'
 import { Config } from './core/types'
 
 async function getConfig(): Promise<Config> {
@@ -106,5 +107,24 @@ tags.command('list').action(async () => { const c = await getConfig(); await lis
 tags.command('add <tag>')
   .option('--category <cat>', 'Tag category: domains|priorities|categories|statuses', 'categories')
   .action(async (tag: string, opts) => { const c = await getConfig(); await addTag(tag, opts.category, c) })
+
+const calendar = program.command('calendar').description('Manage calendar events')
+calendar
+  .command('add <text>')
+  .description('Add an event to your iCloud calendar')
+  .action(async (text: string) => {
+    try {
+      await addCalendarEvent(text)
+    } catch (err: any) {
+      console.error(chalk.red(`Error: ${err.message}`))
+    }
+  })
+calendar
+  .command('today')
+  .description('Regenerate daily note with fresh calendar events')
+  .action(async () => {
+    const config = await getConfig()
+    await runToday(config)
+  })
 
 program.parse(process.argv)
