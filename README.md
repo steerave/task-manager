@@ -13,6 +13,9 @@ A personal CLI task manager that stores tasks as markdown files in your Obsidian
 - **Flexible filtering** — list tasks by domain, due date, priority, or status
 - **Canonical tag registry** — tags are constrained to a defined list in `config.json`, keeping your Obsidian Dataview queries consistent
 - **Extensible domains and tags** — add new domains or tags via `task domains add` and `task tags add`
+- **iCloud calendar integration** — create events on your iCloud calendar using natural language via `task calendar add`
+- **Calendar events in daily note** — today's iCloud calendar events appear in the Events Today section of your daily note
+- **All-day and timed events** — specify a time for timed events, or omit it for all-day events; start-only defaults to 1 hour
 - **Human-readable storage** — every task is a plain markdown file with YAML frontmatter, editable in Obsidian or any text editor
 
 ## Requirements
