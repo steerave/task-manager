@@ -4,7 +4,7 @@ import { toISODate } from '../utils/dateUtils'
 
 const DOMAIN_RULES: Array<{ patterns: RegExp[]; domain: string }> = [
   {
-    patterns: [/\bfor work\b/i, /\bwork([ -]related)?\b/i, /\bwork project\b/i],
+    patterns: [/\bfor work\b/i, /\bwork[- ]related\b/i, /\bwork project\b/i, /\bat work\b/i],
     domain: 'work',
   },
   {
