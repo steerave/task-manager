@@ -8,14 +8,14 @@ Adds the ability to read and write events on your iCloud Home calendar from the 
 
 ## Commands
 
-### `task calendar home add "<event description>"`
+### `task calendar add "<event description>"`
 
 Creates an event on your iCloud Home calendar using natural language.
 
 **Examples:**
-- `task calendar home add "Bettendorf swim meet on 4/26 from 1pm to 3pm"` — timed event
-- `task calendar home add "Dentist appointment tomorrow at 2pm"` — 1-hour default (no end time given)
-- `task calendar home add "Mom's birthday on 5/15"` — all-day event (no time given)
+- `task calendar add "Bettendorf swim meet on 4/26 from 1pm to 3pm"` — timed event
+- `task calendar add "Dentist appointment tomorrow at 2pm"` — 1-hour default (no end time given)
+- `task calendar add "Mom's birthday on 5/15"` — all-day event (no time given)
 
 **Parsing rules:**
 - Date is required — parser detects "on 4/26", "tomorrow", "next Monday", etc.
@@ -29,7 +29,7 @@ Event created: Bettendorf swim meet
    Apr 26, 2026 · 1:00 PM – 3:00 PM · Home calendar
 ```
 
-### `task calendar home today`
+### `task calendar today`
 
 Regenerates the daily task note with fresh calendar events pulled from iCloud. This is functionally the same as `task today` — it regenerates the entire daily note, ensuring events are current.
 
@@ -37,7 +37,7 @@ Regenerates the daily task note with fresh calendar events pulled from iCloud. T
 
 ## Daily Note Changes
 
-When `task today` or `task calendar home today` runs, today's calendar events are fetched from iCloud and included in the Today section of the daily note. Events appear after Due Today.
+When `task today` or `task calendar today` runs, today's calendar events are fetched from iCloud and included in the Today section of the daily note. Events appear after Due Today.
 
 **Section order in the daily note:**
 
@@ -84,7 +84,7 @@ When `task today` or `task calendar home today` runs, today's calendar events ar
 | iCloud is unreachable (network error) | Events section is skipped; a warning is printed to the terminal but the note still generates |
 | Home calendar not found on iCloud | Warning printed: "Home calendar not found on iCloud — skipping events"; note generates without events |
 | Event creation fails (bad credentials, network) | Error printed to terminal; no partial event created |
-| NLP can't parse a date from the input | Error: "Could not parse a date from your input. Try: task calendar home add 'event name on <date>'" |
+| NLP can't parse a date from the input | Error: "Could not parse a date from your input. Try: task calendar add 'event name on <date>'" |
 
 ---
 
@@ -97,7 +97,7 @@ When `task today` or `task calendar home today` runs, today's calendar events ar
 | `src/calendar/types.ts` | `CalendarEvent` interface (name, date, startTime, endTime, isAllDay) |
 | `src/calendar/icloudClient.ts` | CalDAV connection to iCloud — fetch today's events, create event |
 | `src/calendar/eventParser.ts` | NLP parsing for event input — extract name, date, start time, end time |
-| `src/commands/calendar.ts` | CLI handlers for `calendar home add` and `calendar home today` |
+| `src/commands/calendar.ts` | CLI handlers for `calendar add` and `calendar today` |
 | `tests/calendar/eventParser.test.ts` | Unit tests for event NLP parsing |
 | `tests/calendar/icloudClient.test.ts` | Integration test for CalDAV (requires credentials, can be skipped in CI) |
 
@@ -107,7 +107,7 @@ When `task today` or `task calendar home today` runs, today's calendar events ar
 |---|---|
 | `src/core/dailyNoteGenerator.ts` | `generateDailyNote` accepts optional `CalendarEvent[]` param; renders Events Today section after Due Today |
 | `src/commands/today.ts` | Fetches calendar events before calling `generateDailyNote`; passes them in |
-| `src/cli.ts` | Registers `calendar home add` and `calendar home today` subcommands |
+| `src/cli.ts` | Registers `calendar add` and `calendar today` subcommands |
 
 ### Dependencies
 
@@ -134,9 +134,10 @@ When `task today` or `task calendar home today` runs, today's calendar events ar
 
 ## Future Extensibility
 
-- Multiple calendars: `task calendar work add "..."`, `task calendar all today`
+- Multiple calendars: commands expand to `task calendar home add "..."`, `task calendar work add "..."`, `task calendar all today`
 - Calendar names would be listed in `config.json` under a `calendars` key; each maps to a name in iCloud
 - The `icloudClient.ts` already accepts a calendar name parameter, making this a config-only change later
+- For now, all commands target the single calendar defined in `ICLOUD_CALENDAR_NAME` env var (default: Home)
 
 ---
 
@@ -152,4 +153,4 @@ When `task today` or `task calendar home today` runs, today's calendar events ar
 
 ## Definition of Done
 
-> Joe types `task calendar home add "Bettendorf swim meet on 4/26 from 1pm to 3pm"`, sees confirmation, checks his iPhone and the event is there. He runs `task today` and sees today's calendar events listed under Events Today in his Obsidian daily note.
+> Joe types `task calendar add "Bettendorf swim meet on 4/26 from 1pm to 3pm"`, sees confirmation, checks his iPhone and the event is there. He runs `task today` and sees today's calendar events listed under Events Today in his Obsidian daily note.
