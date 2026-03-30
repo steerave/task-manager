@@ -213,10 +213,12 @@ Includes:
 
 ---
 
-### V0.3 — Calendar Integration
-- **Export to calendar** — `task calendar export` generates a `.ics` file you can import into Google/Apple Calendar
-- **Live calendar subscription** — serve the `.ics` locally so your calendar app auto-refreshes
-- **Calendar events in today.md** — your meetings and appointments appear in the daily note (read-only)
+### V0.3 — Calendar Management *(partially shipped)*
+- ~~**Calendar events in today.md**~~ *(done — Events Today section in daily note)*
+- ~~**Create events from CLI**~~ *(done — `task calendar add`)*
+- **`task calendar delete`** — delete events from iCloud calendar via CLI
+- **`task calendar list`** — list upcoming events from the CLI
+- **Multiple calendar support** — `task calendar home add`, `task calendar work add`
 
 ---
 
@@ -230,7 +232,7 @@ Includes:
 ---
 
 ### V1.5 — Two-Way Calendar Sync
-- CalDAV sync so task due dates and calendar events stay in sync automatically
+- Full two-way CalDAV sync so tasks and calendar events stay in sync automatically
 - Credentials stored securely in your system keychain (never in a file)
 
 ---
