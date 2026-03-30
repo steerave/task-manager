@@ -7,6 +7,8 @@ import { scanTasks, getTasksDir } from '../core/vaultScanner'
 import { generateDailyNote, parseCheckedTaskIds } from '../core/dailyNoteGenerator'
 import { taskFilePath, readTask, updateTask } from '../core/taskFile'
 import { today } from '../utils/dateUtils'
+import { fetchTodayEvents } from '../calendar/icloudClient'
+import { CalendarEvent } from '../calendar/types'
 
 function getDailyNoteFile(config: Config): string {
   const dateStr = dayjs().format('YYYYMMDD')
@@ -49,14 +51,22 @@ export async function runToday(config: Config): Promise<void> {
   // Step 2: Scan all tasks (with updated done states)
   const tasks = await scanTasks(config)
 
-  // Step 3: Generate and write the consolidated daily note
-  const note = generateDailyNote(tasks)
+  // Step 3: Fetch calendar events (gracefully skip on failure)
+  let events: CalendarEvent[] = []
+  try {
+    events = await fetchTodayEvents()
+  } catch (err: any) {
+    console.log(chalk.yellow(`Warning: Could not fetch calendar events: ${err.message}`))
+  }
+
+  // Step 4: Generate and write the consolidated daily note
+  const note = generateDailyNote(tasks, events)
   await fs.writeFile(noteFile, note, 'utf8')
 
   const todayTasks = tasks.filter((t) => t.due === today() && !t.tags.includes('status/done'))
   console.log(
     chalk.green(
-      `Notes updated: ${synced} tasks marked done · today: ${todayTasks.length} tasks`
+      `Notes updated: ${synced} tasks marked done · today: ${todayTasks.length} tasks · ${events.length} events`
     )
   )
   console.log(chalk.gray(`   ${noteFile}`))
