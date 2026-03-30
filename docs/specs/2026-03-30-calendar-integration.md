@@ -144,10 +144,15 @@ When `task today` or `task calendar today` runs, today's calendar events are fet
 ## What This Does NOT Do
 
 - No two-way sync — creating an event on your phone does not create a task
-- No editing or deleting events from the CLI (V1.5+)
+- No editing events from the CLI (V1.5+)
 - No recurring event creation from the CLI (V1.0+)
 - No events in the This Week or Next Week sections (Today only)
 - No calendar notifications or reminders
+
+**Planned for V0.3:**
+- `task calendar delete` — delete events from iCloud calendar
+- `task calendar list` — list upcoming events
+- Multiple calendar support (`task calendar home add`, `task calendar work add`)
 
 ---
 
