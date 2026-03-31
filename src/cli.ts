@@ -13,6 +13,7 @@ import { deleteTask } from './commands/delete'
 import { runToday } from './commands/today'
 import { listDomains, addDomain, listTags, addTag } from './commands/config'
 import { addCalendarEvent } from './commands/calendar'
+import { resolveTaskId } from './core/taskResolver'
 import { Config } from './core/types'
 
 async function getConfig(): Promise<Config> {
@@ -65,38 +66,42 @@ program
 
 program
   .command('done <id>')
-  .description('Mark a task as done')
+  .description('Mark a task as done (supports shorthand: task done 0011)')
   .action(async (id: string) => {
     const config = await getConfig()
-    await markDone(id, config)
+    const resolved = await resolveTaskId(id, config)
+    await markDone(resolved, config)
   })
 
 program
   .command('waiting <id>')
-  .description('Mark a task as waiting on someone else')
+  .description('Mark a task as waiting on someone else (supports shorthand)')
   .action(async (id: string) => {
     const config = await getConfig()
-    await markWaiting(id, config)
+    const resolved = await resolveTaskId(id, config)
+    await markWaiting(resolved, config)
   })
 
 program
   .command('update <id>')
-  .description('Update a task')
+  .description('Update a task (supports shorthand)')
   .option('--name <name>', 'New task name')
   .option('--due <date>', 'New due date (YYYY-MM-DD)')
   .option('--domain <domain>', 'New domain')
   .option('--priority <priority>', 'New priority: high | medium | low')
   .action(async (id: string, opts) => {
     const config = await getConfig()
-    await updateTaskCmd(id, opts, config)
+    const resolved = await resolveTaskId(id, config)
+    await updateTaskCmd(resolved, opts, config)
   })
 
 program
   .command('delete <id>')
-  .description('Delete a task')
+  .description('Delete a task (supports shorthand)')
   .action(async (id: string) => {
     const config = await getConfig()
-    await deleteTask(id, config)
+    const resolved = await resolveTaskId(id, config)
+    await deleteTask(resolved, config)
   })
 
 program
