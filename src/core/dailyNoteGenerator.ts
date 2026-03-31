@@ -22,12 +22,14 @@ function taskLine(task: Task): string {
   const domain = getDomain(task)
   const priority = getPriority(task)
   const due = task.due ? ` *(due ${dayjs(task.due).format('MMM D')})*` : ''
-  const checkbox = task.tags.includes('status/done') ? '- [x]' : '- [ ]'
+  const checkbox = task.tags.includes('status/done') ? '- [x]'
+    : task.tags.includes('status/waiting') ? '- [/]'
+    : '- [ ]'
   return `${checkbox} [[${task.id}|${task.name}]]${due} — ${domain} · ${priority} <!-- task:${task.id} -->`
 }
 
 function isActive(task: Task): boolean {
-  return !task.tags.includes('status/done') && !task.tags.includes('status/blocked')
+  return !task.tags.includes('status/done') && !task.tags.includes('status/blocked') && !task.tags.includes('status/waiting')
 }
 
 function renderDomainGroups(tasks: Task[]): string[] {
@@ -60,6 +62,7 @@ export function generateDailyNote(tasks: Task[], events?: CalendarEvent[]): stri
 
   const overdue = active.filter((t) => t.due && isOverdue(t.due))
   const dueToday = active.filter((t) => t.due && isToday(t.due))
+  const waiting = tasks.filter((t) => t.tags.includes('status/waiting'))
   const completedToday = tasks.filter((t) => t.tags.includes('status/done') && t.completed && isToday(t.completed))
   const inbox = active.filter((t) => t.tags.includes('status/inbox'))
   const thisWeekTasks = active.filter((t) => t.due && isThisWeek(t.due))
@@ -90,13 +93,19 @@ export function generateDailyNote(tasks: Task[], events?: CalendarEvent[]): stri
     sections.push('')
   }
 
+  if (waiting.length > 0) {
+    sections.push('### Waiting On')
+    waiting.forEach((t) => sections.push(taskLine(t)))
+    sections.push('')
+  }
+
   if (completedToday.length > 0) {
     sections.push('### Completed Today')
     completedToday.forEach((t) => sections.push(taskLine(t)))
     sections.push('')
   }
 
-  if (overdue.length === 0 && dueToday.length === 0 && inbox.length === 0 && completedToday.length === 0) {
+  if (overdue.length === 0 && dueToday.length === 0 && inbox.length === 0 && completedToday.length === 0 && waiting.length === 0) {
     sections.push('*(Nothing due today)*')
     sections.push('')
   }

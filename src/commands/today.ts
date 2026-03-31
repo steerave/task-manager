@@ -29,7 +29,7 @@ async function syncCheckboxes(config: Config, noteFile: string): Promise<number>
     const filePath = taskFilePath(tasksDir, id)
     if (!(await fs.pathExists(filePath))) continue
     const task = await readTask(filePath)
-    if (task.tags.includes('status/done')) continue
+    if (task.tags.includes('status/done') || task.tags.includes('status/waiting')) continue
     const newTags = task.tags
       .filter((t) => t !== 'status/todo' && t !== 'status/inbox' && t !== 'status/blocked')
       .concat('status/done')
