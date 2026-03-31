@@ -7,6 +7,7 @@ import { runSetupWizard } from './config/setupWizard'
 import { addTask } from './commands/add'
 import { listTasks } from './commands/list'
 import { markDone } from './commands/done'
+import { markWaiting } from './commands/waiting'
 import { updateTaskCmd } from './commands/update'
 import { deleteTask } from './commands/delete'
 import { runToday } from './commands/today'
@@ -68,6 +69,14 @@ program
   .action(async (id: string) => {
     const config = await getConfig()
     await markDone(id, config)
+  })
+
+program
+  .command('waiting <id>')
+  .description('Mark a task as waiting on someone else')
+  .action(async (id: string) => {
+    const config = await getConfig()
+    await markWaiting(id, config)
   })
 
 program

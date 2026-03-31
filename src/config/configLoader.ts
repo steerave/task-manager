@@ -11,7 +11,7 @@ export function defaultConfig(vaultPath: string): Config {
       domains: ['work', 'personal', 'personal-projects'],
       priorities: ['priority/high', 'priority/medium', 'priority/low'],
       categories: ['health', 'finance', 'errands', 'learning', 'admin', 'creative'],
-      statuses: ['status/todo', 'status/done', 'status/blocked', 'status/inbox'],
+      statuses: ['status/todo', 'status/done', 'status/blocked', 'status/inbox', 'status/waiting'],
     },
   }
 }
