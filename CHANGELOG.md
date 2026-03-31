@@ -12,6 +12,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - All-day event support (no time given = all-day)
 - Default 1-hour duration when only a start time is provided
 - Graceful fallback when iCloud credentials aren't configured or network is unavailable
+- `task waiting` command — mark tasks as "waiting on someone else" with `status/waiting` tag
+- Waiting On section in daily note with `[/]` half-complete Obsidian checkbox
+- Completed Today section in daily note — finished tasks stay visible as checked-off items
+- Checkbox sync skips waiting tasks so they don't get re-marked as done
 
 ## [0.1.0] - 2026-03-30
 

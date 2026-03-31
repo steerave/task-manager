@@ -16,6 +16,8 @@ A personal CLI task manager that stores tasks as markdown files in your Obsidian
 - **iCloud calendar integration** — create events on your iCloud calendar using natural language via `task calendar add`
 - **Calendar events in daily note** — today's iCloud calendar events appear in the Events Today section of your daily note
 - **All-day and timed events** — specify a time for timed events, or omit it for all-day events; start-only defaults to 1 hour
+- **Waiting on status** — mark tasks as "waiting on someone else" with `task waiting` — they show with a half-complete `[/]` checkbox in Obsidian and stay visible in your daily note until resolved
+- **Completed today tracking** — tasks you finish today stay in the daily note as checked-off items so you can see what you accomplished
 - **Human-readable storage** — every task is a plain markdown file with YAML frontmatter, editable in Obsidian or any text editor
 
 ## Requirements
@@ -72,6 +74,7 @@ task list --done                       # Include completed tasks
 
 ```bash
 task done 260330-purchase-fruits-aldis-0001      # Mark done
+task waiting 260330-email-hr-0010                # Mark as waiting on someone else
 task update 260330-call-dentist-0001 --priority high   # Change priority
 task update 260330-call-dentist-0001 --domain work     # Change domain
 task update 260330-call-dentist-0001 --due 2026-04-05  # Change due date
