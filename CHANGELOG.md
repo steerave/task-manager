@@ -16,6 +16,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Waiting On section in daily note with `[/]` half-complete Obsidian checkbox
 - Completed Today section in daily note — finished tasks stay visible as checked-off items
 - Checkbox sync skips waiting tasks so they don't get re-marked as done
+- Shorthand task IDs — use just the sequence number (e.g., `task done 0011`) instead of the full ID
 
 ## [0.1.0] - 2026-03-30
 
