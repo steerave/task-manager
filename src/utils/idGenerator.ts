@@ -29,12 +29,10 @@ export async function generateTaskId(tasksDir: string, taskName: string): Promis
   if (await fs.pathExists(tasksDir)) {
     const files = await fs.readdir(tasksDir)
     for (const f of files) {
-      if (f.startsWith(datePrefix)) {
-        const match = f.match(/-(\d{4})\.md$/)
-        if (match) {
-          const num = parseInt(match[1], 10)
-          if (num > maxSeq) maxSeq = num
-        }
+      const match = f.match(/-(\d{4})\.md$/)
+      if (match) {
+        const num = parseInt(match[1], 10)
+        if (num > maxSeq) maxSeq = num
       }
     }
   }
