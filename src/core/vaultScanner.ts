@@ -13,7 +13,13 @@ export async function scanTasks(config: Config): Promise<Task[]> {
   if (!(await fs.pathExists(tasksDir))) return []
   const files = await fs.readdir(tasksDir)
   const mdFiles = files.filter((f) => f.endsWith('.md'))
-  const tasks = await Promise.all(mdFiles.map((f) => readTask(path.join(tasksDir, f))))
+  const tasks = await Promise.all(mdFiles.map(async (f) => {
+    const filePath = path.join(tasksDir, f)
+    const task = await readTask(filePath)
+    const stat = await fs.stat(filePath)
+    task.modified = stat.mtime.toISOString().slice(0, 10)
+    return task
+  }))
   return tasks
 }
 

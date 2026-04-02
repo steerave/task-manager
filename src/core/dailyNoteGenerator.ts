@@ -22,10 +22,11 @@ function taskLine(task: Task): string {
   const domain = getDomain(task)
   const priority = getPriority(task)
   const due = task.due ? ` *(due ${dayjs(task.due).format('MMM D')})*` : ''
+  const mod = task.modified ? ` <small>mod ${dayjs(task.modified).format('MMM D')}</small>` : ''
   const checkbox = task.tags.includes('status/done') ? '- [x]'
     : task.tags.includes('status/waiting') ? '- [/]'
     : '- [ ]'
-  return `${checkbox} [[${task.id}|${task.name}]]${due} — ${domain} · ${priority} <!-- task:${task.id} -->`
+  return `${checkbox} [[${task.id}|${task.name}]]${due} — ${domain} · ${priority}${mod} <!-- task:${task.id} -->`
 }
 
 function isActive(task: Task): boolean {

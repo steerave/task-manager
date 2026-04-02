@@ -5,6 +5,7 @@ export interface Task {
   tags: string[]
   created: string           // ISO date string YYYY-MM-DD
   completed: string | null  // ISO date string YYYY-MM-DD, or null
+  modified?: string          // ISO date string from filesystem mtime
 }
 
 export interface ParsedInput {
