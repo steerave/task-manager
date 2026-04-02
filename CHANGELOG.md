@@ -5,6 +5,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Calendar events from adjacent days (e.g., tomorrow's all-day events) no longer leak into today's Events section
+
 ### Added
 - `task calendar add` command — create events on iCloud Home calendar using natural language
 - `task calendar today` command — regenerate daily note with fresh calendar events
