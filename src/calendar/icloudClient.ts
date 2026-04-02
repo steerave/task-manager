@@ -98,15 +98,19 @@ export async function fetchTodayEvents(): Promise<CalendarEvent[]> {
     }
   }
 
+  // Filter to only events whose date matches today
+  const todayStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+  const todayEvents = events.filter(e => e.date === todayStr)
+
   // Sort: timed events by start time, all-day events last
-  events.sort((a, b) => {
+  todayEvents.sort((a, b) => {
     if (a.isAllDay && !b.isAllDay) return 1
     if (!a.isAllDay && b.isAllDay) return -1
     if (a.startTime && b.startTime) return a.startTime.localeCompare(b.startTime)
     return 0
   })
 
-  return events
+  return todayEvents
 }
 
 export async function createEvent(
