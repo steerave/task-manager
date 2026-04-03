@@ -3,14 +3,11 @@
 ## 2026-04-02
 
 **Done:**
-- Fixed calendar events to only include today's date in daily note generation
-
-**In Progress:**
-- V0.1 MVP development — core CLI commands and task management features
+- Filter calendar events to only show today's date in the daily note
+- Update `/status` skill to require feature-specific bullets instead of vague project phases
 
 **Next:**
-- Continue V0.1 implementation per `docs/superpowers/plans/2026-03-29-task-manager-v0.1.md`
-- Add remaining CLI commands and tests
+- Pick up next feature from `docs/superpowers/plans/2026-03-29-task-manager-v0.1.md`
 
 ## 2026-04-01
 
