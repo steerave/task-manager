@@ -4,10 +4,13 @@
 
 **Done:**
 - Filter calendar events to only show today's date in the daily note
+- Show modified date on tasks in the daily note
+- Remove 'mod' prefix from modified date display — show clean date only
+- Write daily note redesign spec (`docs/superpowers/specs/daily-note-redesign.md`)
 - Update `/status` skill to require feature-specific bullets instead of vague project phases
 
 **Next:**
-- Pick up next feature from `docs/superpowers/plans/2026-03-29-task-manager-v0.1.md`
+- Implement daily note redesign per `docs/superpowers/specs/daily-note-redesign.md`
 
 ## 2026-04-01
 
