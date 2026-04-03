@@ -22,7 +22,7 @@ function taskLine(task: Task): string {
   const domain = getDomain(task)
   const priority = getPriority(task)
   const due = task.due ? ` *(due ${dayjs(task.due).format('MMM D')})*` : ''
-  const mod = task.modified ? ` <small>mod ${dayjs(task.modified).format('MMM D')}</small>` : ''
+  const mod = task.modified ? ` <small>${dayjs(task.modified).format('MMM D')}</small>` : ''
   const checkbox = task.tags.includes('status/done') ? '- [x]'
     : task.tags.includes('status/waiting') ? '- [/]'
     : '- [ ]'
