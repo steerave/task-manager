@@ -1,11 +1,22 @@
 import dayjs from 'dayjs'
 import { Task } from './types'
 import { CalendarEvent } from '../calendar/types'
-import { isToday, isThisWeek, isNextWeek, isOverdue, startOfWeek, endOfWeek } from '../utils/dateUtils'
+import { isToday, isOverdue } from '../utils/dateUtils'
 
 const DOMAINS = ['work', 'personal', 'personal-projects']
 
-function getPriority(task: Task): string {
+function domainLabel(domain: string): string {
+  return domain.replace('-', ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+function priorityRank(task: Task): number {
+  if (task.tags.includes('priority/high')) return 0
+  if (task.tags.includes('priority/medium')) return 1
+  if (task.tags.includes('priority/low')) return 2
+  return 1 // default to medium if unset
+}
+
+function priorityLabel(task: Task): string {
   if (task.tags.includes('priority/high')) return 'High'
   if (task.tags.includes('priority/low')) return 'Low'
   return 'Medium'
@@ -13,107 +24,107 @@ function getPriority(task: Task): string {
 
 function getDomain(task: Task): string {
   for (const d of DOMAINS) {
-    if (task.tags.includes(d)) return d.replace('-', ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+    if (task.tags.includes(d)) return d
   }
-  return 'Inbox'
+  return 'inbox'
 }
 
-function taskLine(task: Task): string {
-  const domain = getDomain(task)
-  const priority = getPriority(task)
-  const due = task.due ? ` *(due ${dayjs(task.due).format('MMM D')})*` : ''
-  const mod = task.modified ? ` <small>${dayjs(task.modified).format('MMM D')}</small>` : ''
-  const checkbox = task.tags.includes('status/done') ? '- [x]'
-    : task.tags.includes('status/waiting') ? '- [/]'
-    : '- [ ]'
-  return `${checkbox} [[${task.id}|${task.name}]]${due} — ${domain} · ${priority}${mod} <!-- task:${task.id} -->`
+function isOpen(task: Task): boolean {
+  return (
+    !task.tags.includes('status/done') &&
+    !task.tags.includes('status/blocked') &&
+    !task.tags.includes('status/waiting')
+  )
 }
 
-function isActive(task: Task): boolean {
-  return !task.tags.includes('status/done') && !task.tags.includes('status/blocked') && !task.tags.includes('status/waiting')
+function sortTasks(tasks: Task[]): Task[] {
+  return [...tasks].sort((a, b) => {
+    const pa = priorityRank(a)
+    const pb = priorityRank(b)
+    if (pa !== pb) return pa - pb
+
+    // Within same priority: due date ascending, nulls last
+    if (a.due === null && b.due === null) return 0
+    if (a.due === null) return 1
+    if (b.due === null) return -1
+    return a.due.localeCompare(b.due)
+  })
 }
 
-function renderDomainGroups(tasks: Task[]): string[] {
-  const lines: string[] = []
-  for (const domain of DOMAINS) {
-    const domainTasks = tasks.filter((t) => t.tags.includes(domain))
-    if (domainTasks.length === 0) continue
-    const label = domain.replace('-', ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-    lines.push(`### ${label}`)
-    domainTasks.forEach((t) => lines.push(taskLine(t)))
-    lines.push('')
-  }
-  return lines
+function openTaskLine(task: Task): string {
+  const overdue = task.due !== null && isOverdue(task.due)
+  const prefix = overdue ? '⚠️ ' : ''
+  const dueBit = task.due
+    ? overdue
+      ? ` *(due ${dayjs(task.due).format('MMM D')} — overdue)*`
+      : ` *(due ${dayjs(task.due).format('MMM D')})*`
+    : ''
+  const priority = priorityLabel(task)
+  return `- [ ] ${prefix}[[${task.id}|${task.name}]]${dueBit} · ${priority} <!-- task:${task.id} -->`
+}
+
+function waitingTaskLine(task: Task): string {
+  const dueBit = task.due ? ` *(due ${dayjs(task.due).format('MMM D')})*` : ''
+  const domain = domainLabel(getDomain(task))
+  return `- [/] [[${task.id}|${task.name}]]${dueBit} — ${domain} <!-- task:${task.id} -->`
+}
+
+function completedTaskLine(task: Task): string {
+  const domain = domainLabel(getDomain(task))
+  return `- [x] [[${task.id}|${task.name}]] — ${domain} <!-- task:${task.id} -->`
 }
 
 export function generateDailyNote(tasks: Task[], events?: CalendarEvent[]): string {
-  const active = tasks.filter(isActive)
   const dateStr = dayjs().format('MMMM D, YYYY')
-  const fileTitle = dayjs().format('YYYYMMDD')
   const timestamp = dayjs().format('YYYY-MM-DD HH:mm')
 
-  const weekStart = startOfWeek()
-  const weekEnd = endOfWeek()
-  const weekRange = `${dayjs(weekStart).format('MMM D')}–${dayjs(weekEnd).format('MMM D, YYYY')}`
-
-  const nextWeekDate = dayjs().add(7, 'day').format('YYYY-MM-DD')
-  const nextStart = startOfWeek(nextWeekDate)
-  const nextEnd = endOfWeek(nextWeekDate)
-  const nextWeekRange = `${dayjs(nextStart).format('MMM D')}–${dayjs(nextEnd).format('MMM D, YYYY')}`
-
-  const overdue = active.filter((t) => t.due && isOverdue(t.due))
-  const dueToday = active.filter((t) => t.due && isToday(t.due))
+  const open = tasks.filter(isOpen)
   const waiting = tasks.filter((t) => t.tags.includes('status/waiting'))
-  const completedToday = tasks.filter((t) => t.tags.includes('status/done') && t.completed && isToday(t.completed))
-  const inbox = active.filter((t) => t.tags.includes('status/inbox'))
-  const thisWeekTasks = active.filter((t) => t.due && isThisWeek(t.due))
-  const nextWeekTasks = active.filter((t) => t.due && isNextWeek(t.due))
+  const completedToday = tasks.filter(
+    (t) => t.tags.includes('status/done') && t.completed && isToday(t.completed)
+  )
 
   const sections: string[] = []
 
-  // ── Today ──
   sections.push('')
   sections.push(`## Today — ${dateStr}`)
   sections.push('')
 
-  if (inbox.length > 0) {
-    sections.push('### Needs Triage')
-    inbox.forEach((t) => sections.push(taskLine(t)))
+  // ── All Open Tasks ──
+  sections.push('### All Open Tasks')
+  sections.push('')
+  let anyOpen = false
+  for (const domain of DOMAINS) {
+    const domainTasks = sortTasks(open.filter((t) => t.tags.includes(domain)))
+    if (domainTasks.length === 0) continue
+    anyOpen = true
+    sections.push(`#### ${domainLabel(domain)}`)
+    domainTasks.forEach((t) => sections.push(openTaskLine(t)))
+    sections.push('')
+  }
+  // Inbox-only tasks (no domain)
+  const inboxTasks = sortTasks(open.filter((t) => !DOMAINS.some((d) => t.tags.includes(d))))
+  if (inboxTasks.length > 0) {
+    anyOpen = true
+    sections.push('#### Inbox')
+    inboxTasks.forEach((t) => sections.push(openTaskLine(t)))
+    sections.push('')
+  }
+  if (!anyOpen) {
+    sections.push('*(No open tasks)*')
     sections.push('')
   }
 
-  if (overdue.length > 0) {
-    sections.push('### Overdue')
-    overdue.forEach((t) => sections.push(taskLine(t)))
-    sections.push('')
-  }
-
-  if (dueToday.length > 0) {
-    sections.push('### Due Today')
-    dueToday.forEach((t) => sections.push(taskLine(t)))
-    sections.push('')
-  }
-
+  // ── Waiting On ──
   if (waiting.length > 0) {
     sections.push('### Waiting On')
-    waiting.forEach((t) => sections.push(taskLine(t)))
+    waiting.forEach((t) => sections.push(waitingTaskLine(t)))
     sections.push('')
   }
 
-  if (completedToday.length > 0) {
-    sections.push('### Completed Today')
-    completedToday.forEach((t) => sections.push(taskLine(t)))
-    sections.push('')
-  }
-
-  if (overdue.length === 0 && dueToday.length === 0 && inbox.length === 0 && completedToday.length === 0 && waiting.length === 0) {
-    sections.push('*(Nothing due today)*')
-    sections.push('')
-  }
-
-  // ── Events Today ──
+  // ── Events ──
   if (events && events.length > 0) {
-    sections.push('### Events Today')
+    sections.push('### Events')
     for (const event of events) {
       if (event.isAllDay) {
         sections.push(`- ${event.name} *(all day)*`)
@@ -124,37 +135,15 @@ export function generateDailyNote(tasks: Task[], events?: CalendarEvent[]): stri
     sections.push('')
   }
 
-  // ── This Week ──
-  sections.push('---')
-  sections.push('')
-  sections.push(`## This Week — ${weekRange}`)
-  sections.push('')
-
-  const thisWeekDomains = renderDomainGroups(thisWeekTasks)
-  if (thisWeekDomains.length > 0) {
-    sections.push(...thisWeekDomains)
-  } else {
-    sections.push('*(Nothing scheduled this week)*')
+  // ── Completed Today ──
+  if (completedToday.length > 0) {
+    sections.push('### Completed Today')
+    completedToday.forEach((t) => sections.push(completedTaskLine(t)))
     sections.push('')
   }
 
-  // ── Next Week ──
   sections.push('---')
-  sections.push('')
-  sections.push(`## Next Week — ${nextWeekRange}`)
-  sections.push('')
-
-  const nextWeekDomains = renderDomainGroups(nextWeekTasks)
-  if (nextWeekDomains.length > 0) {
-    sections.push(...nextWeekDomains)
-  } else {
-    sections.push('*(Nothing scheduled next week)*')
-    sections.push('')
-  }
-
-  // ── Footer ──
-  sections.push('---')
-  sections.push(`*Generated by task-manager · /today · ${timestamp}*`)
+  sections.push(`*Generated by task-manager · ${timestamp}*`)
 
   return sections.join('\n')
 }
