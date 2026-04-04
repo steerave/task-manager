@@ -3,12 +3,11 @@ import * as path from 'path'
 import chalk from 'chalk'
 import dayjs from 'dayjs'
 import { Config } from '../core/types'
-import { scanTasks, getTasksDir } from '../core/vaultScanner'
-import { generateDailyNote, parseCheckedTaskIds } from '../core/dailyNoteGenerator'
+import { getTasksDir } from '../core/vaultScanner'
+import { parseCheckedTaskIds } from '../core/dailyNoteGenerator'
 import { taskFilePath, readTask, updateTask } from '../core/taskFile'
 import { today } from '../utils/dateUtils'
-import { fetchTodayEvents } from '../calendar/icloudClient'
-import { CalendarEvent } from '../calendar/types'
+import { refreshDailyNote } from '../core/noteRefresher'
 
 function getDailyNoteFile(config: Config): string {
   const dateStr = dayjs().format('YYYYMMDD')
@@ -42,32 +41,13 @@ async function syncCheckboxes(config: Config, noteFile: string): Promise<number>
 
 export async function runToday(config: Config): Promise<void> {
   const noteFile = getDailyNoteFile(config)
-  const noteDir = path.dirname(noteFile)
-  await fs.ensureDir(noteDir)
 
   // Step 1: Sync checkboxes from existing daily note
   const synced = await syncCheckboxes(config, noteFile)
 
-  // Step 2: Scan all tasks (with updated done states)
-  const tasks = await scanTasks(config)
+  // Step 2: Regenerate note with fresh calendar events
+  await refreshDailyNote(config, { freshCalendar: true })
 
-  // Step 3: Fetch calendar events (gracefully skip on failure)
-  let events: CalendarEvent[] = []
-  try {
-    events = await fetchTodayEvents()
-  } catch (err: any) {
-    console.log(chalk.yellow(`Warning: Could not fetch calendar events: ${err.message}`))
-  }
-
-  // Step 4: Generate and write the consolidated daily note
-  const note = generateDailyNote(tasks, events)
-  await fs.writeFile(noteFile, note, 'utf8')
-
-  const todayTasks = tasks.filter((t) => t.due === today() && !t.tags.includes('status/done'))
-  console.log(
-    chalk.green(
-      `Notes updated: ${synced} tasks marked done · today: ${todayTasks.length} tasks · ${events.length} events`
-    )
-  )
+  console.log(chalk.green(`Notes updated: ${synced} tasks marked done`))
   console.log(chalk.gray(`   ${noteFile}`))
 }
