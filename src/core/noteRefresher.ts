@@ -58,9 +58,13 @@ export async function refreshDailyNote(config: Config, options: RefreshOptions):
   if (options.freshCalendar) {
     try {
       events = await fetchTodayEvents()
-      await writeCachedEvents(config, events)
     } catch (err: any) {
       console.log(chalk.yellow(`Warning: Could not fetch calendar events: ${err.message}`))
+    }
+    try {
+      await writeCachedEvents(config, events)
+    } catch (err: any) {
+      console.log(chalk.yellow(`Warning: Could not write calendar cache: ${err.message}`))
     }
   } else {
     events = await readCachedEvents(config)
