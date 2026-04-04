@@ -122,6 +122,8 @@ describe('noteRefresher', () => {
     await expect(refreshDailyNote(config, { freshCalendar: true })).resolves.toBeUndefined()
     const noteFile = path.join(vaultPath, 'DailyNotes', '20260404 - Daily Task.md')
     expect(await fs.pathExists(noteFile)).toBe(true)
+    const content = await fs.readFile(noteFile, 'utf8')
+    expect(content).not.toContain('### Events')
   })
 
   it('scans tasks from Tasks directory and includes them in the note', async () => {
