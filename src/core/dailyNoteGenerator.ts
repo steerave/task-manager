@@ -6,7 +6,7 @@ import { isToday, isOverdue } from '../utils/dateUtils'
 const DOMAINS = ['work', 'personal', 'personal-projects']
 
 function domainLabel(domain: string): string {
-  return domain.replace('-', ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+  return domain.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
 function priorityRank(task: Task): number {
