@@ -38,8 +38,8 @@ describe('runToday', () => {
     expect(await fs.pathExists(noteFile)).toBe(true)
     const content = await fs.readFile(noteFile, 'utf8')
     expect(content).toContain('## Today')
-    expect(content).toContain('## This Week')
-    expect(content).toContain('## Next Week')
+    expect(content).toContain('### All Open Tasks')
+    expect(content).toContain('#### Work')
   })
 
   it('syncs checked checkboxes from existing daily note and marks tasks done', async () => {
