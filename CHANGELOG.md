@@ -11,6 +11,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `task today` now always fetches fresh calendar events; mutation commands use a cached copy (`.calendar-cache.json` in the vault) to avoid redundant iCloud API calls.
 
 ### Fixed
+- Checkbox sync now scans all prior daily notes, not just today's — checking off a task in yesterday's note (or any older daily note) will correctly mark it done on the next `task today` run
 - Calendar events from adjacent days (e.g., tomorrow's all-day events) no longer leak into today's Events section
 
 ### Added
