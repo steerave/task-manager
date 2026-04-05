@@ -19,7 +19,7 @@ describe('markDone', () => {
     config = {
       vaultPath: tmpDir,
       tags: {
-        domains: ['work', 'personal', 'personal-projects'],
+        domains: ['work', 'personal', 'projects'],
         priorities: ['priority/high', 'priority/medium', 'priority/low'],
         categories: ['health'],
         statuses: ['status/todo', 'status/done', 'status/blocked', 'status/inbox'],

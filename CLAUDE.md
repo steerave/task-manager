@@ -78,7 +78,7 @@ task calendar today                         # Refresh daily note with events
 {
   "vaultPath": "/path/to/TaskVault",
   "tags": {
-    "domains": ["work", "personal", "personal-projects"],
+    "domains": ["work", "personal", "projects"],
     "priorities": ["priority/high", "priority/medium", "priority/low"],
     "categories": ["health", "finance", "errands", "learning", "admin", "creative"],
     "statuses": ["status/todo", "status/done", "status/blocked", "status/inbox"]

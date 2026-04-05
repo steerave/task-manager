@@ -4,7 +4,7 @@ import { Config, Task, TaskFilter } from '../core/types'
 import { scanTasksByFilter } from '../core/vaultScanner'
 
 function formatTask(task: Task): string {
-  const domain = task.tags.find((t) => ['work', 'personal', 'personal-projects'].includes(t)) ?? 'inbox'
+  const domain = task.tags.find((t) => ['work', 'personal', 'projects'].includes(t)) ?? 'inbox'
   const priority = task.tags.find((t) => t.startsWith('priority/'))?.replace('priority/', '') ?? 'medium'
   const due = task.due ? dayjs(task.due).format('MMM D') : 'no date'
   const status = task.tags.includes('status/done') ? chalk.gray('[done]') : ''

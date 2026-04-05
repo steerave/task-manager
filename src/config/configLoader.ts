@@ -8,7 +8,7 @@ export function defaultConfig(vaultPath: string): Config {
   return {
     vaultPath,
     tags: {
-      domains: ['work', 'personal', 'personal-projects'],
+      domains: ['work', 'personal', 'projects'],
       priorities: ['priority/high', 'priority/medium', 'priority/low'],
       categories: ['health', 'finance', 'errands', 'learning', 'admin', 'creative'],
       statuses: ['status/todo', 'status/done', 'status/blocked', 'status/inbox', 'status/waiting'],

@@ -23,7 +23,7 @@ describe('priority command', () => {
     config = {
       vaultPath,
       tags: {
-        domains: ['work', 'personal', 'personal-projects'],
+        domains: ['work', 'personal', 'projects'],
         priorities: ['priority/high', 'priority/medium', 'priority/low'],
         categories: [],
         statuses: ['status/todo', 'status/done', 'status/blocked', 'status/inbox', 'status/waiting'],

@@ -34,7 +34,7 @@ describe('configLoader', () => {
 
   it('defaultConfig includes required tag categories', () => {
     const config = defaultConfig(tmpDir)
-    expect(config.tags.domains).toEqual(['work', 'personal', 'personal-projects'])
+    expect(config.tags.domains).toEqual(['work', 'personal', 'projects'])
     expect(config.tags.priorities).toEqual(['priority/high', 'priority/medium', 'priority/low'])
     expect(config.tags.statuses).toContain('status/inbox')
   })

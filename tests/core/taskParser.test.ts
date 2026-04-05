@@ -5,7 +5,7 @@ import { Config } from '../../src/core/types'
 const mockConfig: Config = {
   vaultPath: '/vault',
   tags: {
-    domains: ['work', 'personal', 'personal-projects'],
+    domains: ['work', 'personal', 'projects'],
     priorities: ['priority/high', 'priority/medium', 'priority/low'],
     categories: ['health', 'finance', 'errands', 'learning', 'admin', 'creative'],
     statuses: ['status/todo', 'status/done', 'status/blocked', 'status/inbox'],
@@ -38,9 +38,9 @@ describe('parseTaskInput', () => {
     expect(result.tags).toContain('work')
   })
 
-  it('infers personal-projects domain from "side project"', () => {
+  it('infers projects domain from "side project"', () => {
     const result = parseTaskInput('Learn Rust basics - side project', mockConfig)
-    expect(result.tags).toContain('personal-projects')
+    expect(result.tags).toContain('projects')
   })
 
   it('infers priority/high from "urgent"', () => {

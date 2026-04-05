@@ -5,9 +5,9 @@ A personal CLI task manager that stores tasks as markdown files in your Obsidian
 ## Features
 
 - **Natural language task creation** — type `task add "call dentist next Tuesday personal"` and the tool infers the due date, domain, priority, and category automatically
-- **Smart tagging** — domains (Work, Personal, Personal Projects), priorities (High/Medium/Low), and categories (Health, Finance, Errands, etc.) are detected from your input
+- **Smart tagging** — domains (Work, Personal, Projects), priorities (High/Medium/Low), and categories (Health, Finance, Errands, etc.) are detected from your input
 - **Inbox for ambiguous tasks** — when the tool can't confidently categorize a task, it flags it as Inbox so nothing gets silently mis-tagged
-- **Flat daily note by domain** — one Obsidian note showing every open task grouped by domain (Work, Personal, Personal Projects), sorted by priority then due date, with overdue items flagged inline
+- **Flat daily note by domain** — one Obsidian note showing every open task grouped by domain (Work, Personal, Projects), sorted by priority then due date, with overdue items flagged inline
 - **Two-way checkbox sync** — check off a task in Obsidian's daily note, and the next `task today` run marks the source task file as done automatically
 - **Obsidian wiki-links** — every task in the daily note links directly to its task file in your vault
 - **Flexible filtering** — list tasks by domain, due date, priority, or status
@@ -96,7 +96,7 @@ task today
 ```
 
 Generates a single Obsidian note (`YYYYMMDD - Daily Task.md`) with:
-- **All Open Tasks** — every non-done, non-blocked, non-waiting task grouped by domain (`#### Work`, `#### Personal`, `#### Personal Projects`, `#### Inbox`), sorted within each domain by priority (High → Medium → Low) then by due date ascending. Overdue tasks are marked inline with `⚠️` and an "overdue" label. Tasks with no due date appear at the bottom of their priority group.
+- **All Open Tasks** — every non-done, non-blocked, non-waiting task grouped by domain (`#### Work`, `#### Personal`, `#### Projects`, `#### Inbox`), sorted within each domain by priority (High → Medium → Low) then by due date ascending. Overdue tasks are marked inline with `⚠️` and an "overdue" label. Tasks with no due date appear at the bottom of their priority group.
 - **Waiting On** — tasks marked as waiting on someone else, shown with a `[/]` half-complete checkbox
 - **Events** — today's iCloud calendar events (timed and all-day)
 - **Completed Today** — tasks you finished today, shown checked off
