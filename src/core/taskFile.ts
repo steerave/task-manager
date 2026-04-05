@@ -23,16 +23,31 @@ export async function writeTask(tasksDir: string, task: Task): Promise<void> {
   await fs.writeFile(taskFilePath(tasksDir, task.id), content, 'utf8')
 }
 
+function normalizeDate(value: unknown): string | null {
+  if (value == null) return null
+  if (value instanceof Date) {
+    const y = value.getFullYear()
+    const m = String(value.getMonth() + 1).padStart(2, '0')
+    const d = String(value.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
+  if (typeof value === 'string') {
+    // Strip time component if present (e.g., "2026-03-31T00:00:00.000Z" → "2026-03-31")
+    return value.slice(0, 10)
+  }
+  return null
+}
+
 export async function readTask(filePath: string): Promise<Task> {
   const raw = await fs.readFile(filePath, 'utf8')
   const { data } = matter(raw)
   return {
     id: data.id as string,
     name: data.name as string,
-    due: (data.due as string | null) ?? null,
+    due: normalizeDate(data.due),
     tags: (data.tags as string[]) ?? [],
-    created: data.created as string,
-    completed: (data.completed as string | null) ?? null,
+    created: normalizeDate(data.created) ?? '',
+    completed: normalizeDate(data.completed),
   }
 }
 
