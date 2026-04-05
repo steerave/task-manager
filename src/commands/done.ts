@@ -3,6 +3,7 @@ import { Config } from '../core/types'
 import { getTasksDir } from '../core/vaultScanner'
 import { taskFilePath, readTask, updateTask } from '../core/taskFile'
 import { today } from '../utils/dateUtils'
+import { refreshDailyNote } from '../core/noteRefresher'
 
 export async function markDone(taskId: string, config: Config): Promise<void> {
   const tasksDir = getTasksDir(config)
@@ -13,4 +14,5 @@ export async function markDone(taskId: string, config: Config): Promise<void> {
     .concat('status/done')
   await updateTask(filePath, { tags: newTags, completed: today() })
   console.log(chalk.green(`Done: ${task.name}`))
+  await refreshDailyNote(config, { freshCalendar: false })
 }
