@@ -8,7 +8,7 @@ const tasks: Task[] = [
   { id: 't-002', name: 'Due today medium', due: '2026-03-29', tags: ['personal', 'priority/medium', 'status/todo'], created: '2026-03-29', completed: null },
   { id: 't-003', name: 'Later low', due: '2026-04-05', tags: ['work', 'priority/low', 'status/todo'], created: '2026-03-29', completed: null },
   { id: 't-004', name: 'No due date', due: null, tags: ['personal', 'priority/medium', 'status/todo'], created: '2026-03-29', completed: null },
-  { id: 't-005', name: 'Project task', due: '2026-04-01', tags: ['personal-projects', 'priority/medium', 'status/todo'], created: '2026-03-29', completed: null },
+  { id: 't-005', name: 'Project task', due: '2026-04-01', tags: ['projects', 'priority/medium', 'status/todo'], created: '2026-03-29', completed: null },
 ]
 
 describe('dailyNoteGenerator', () => {
@@ -31,7 +31,7 @@ describe('dailyNoteGenerator', () => {
     const note = generateDailyNote(tasks)
     expect(note).toContain('#### Work')
     expect(note).toContain('#### Personal')
-    expect(note).toContain('#### Personal Projects')
+    expect(note).toContain('#### Projects')
   })
 
   it('sorts tasks within a domain by priority (high>medium>low) then by due date ascending', () => {

@@ -18,7 +18,7 @@ describe('End-to-End: add → check off in Obsidian → /today marks done', () =
     config = {
       vaultPath: tmpDir,
       tags: {
-        domains: ['work', 'personal', 'personal-projects'],
+        domains: ['work', 'personal', 'projects'],
         priorities: ['priority/high', 'priority/medium', 'priority/low'],
         categories: ['health', 'errands'],
         statuses: ['status/todo', 'status/done', 'status/blocked', 'status/inbox'],

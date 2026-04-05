@@ -8,8 +8,8 @@ const DOMAIN_RULES: Array<{ patterns: RegExp[]; domain: string }> = [
     domain: 'work',
   },
   {
-    patterns: [/\bside project\b/i, /\bpersonal project\b/i, /\bbuilding\b/i, /\bpersonal-projects\b/i],
-    domain: 'personal-projects',
+    patterns: [/\bside project\b/i, /\bpersonal project\b/i, /\bbuilding\b/i, /\bprojects?\b/i],
+    domain: 'projects',
   },
   {
     patterns: [/\bpersonal\b/i, /\berrands?\b/i, /\bhousehold\b/i],

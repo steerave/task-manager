@@ -6,6 +6,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Changed
+- Domain renamed: `personal-projects` → `projects` (shows as `#### Projects` in the daily note). The natural-language parser now also detects the bare word "projects"/"project" to assign this domain.
 - **Daily note redesigned** — now shows every open task in one flat `All Open Tasks` section grouped by domain, sorted by priority then due date. Overdue tasks are flagged inline with `⚠️` instead of living in a separate section. Tasks with no due date appear at the bottom of their priority group.
 - Removed the `This Week`, `Next Week`, `Due Today`, `Overdue`, and `Needs Triage` sections — they're all consolidated into the flat view.
 - `task today` now always fetches fresh calendar events; mutation commands use a cached copy (`.calendar-cache.json` in the vault) to avoid redundant iCloud API calls.
