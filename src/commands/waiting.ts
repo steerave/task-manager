@@ -2,6 +2,7 @@ import chalk from 'chalk'
 import { Config } from '../core/types'
 import { getTasksDir } from '../core/vaultScanner'
 import { taskFilePath, readTask, updateTask } from '../core/taskFile'
+import { refreshDailyNote } from '../core/noteRefresher'
 
 export async function markWaiting(taskId: string, config: Config): Promise<void> {
   const tasksDir = getTasksDir(config)
@@ -12,4 +13,5 @@ export async function markWaiting(taskId: string, config: Config): Promise<void>
     .concat('status/waiting')
   await updateTask(filePath, { tags: newTags, completed: null })
   console.log(chalk.cyan(`Waiting: ${task.name}`))
+  await refreshDailyNote(config, { freshCalendar: false })
 }

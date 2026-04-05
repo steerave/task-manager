@@ -6,6 +6,7 @@ import { writeTask } from '../core/taskFile'
 import { generateTaskId } from '../utils/idGenerator'
 import { getTasksDir } from '../core/vaultScanner'
 import { today } from '../utils/dateUtils'
+import { refreshDailyNote } from '../core/noteRefresher'
 
 export async function addTask(input: string, config: Config): Promise<void> {
   const parsed = parseTaskInput(input, config)
@@ -32,4 +33,5 @@ export async function addTask(input: string, config: Config): Promise<void> {
     if (task.due) console.log(chalk.gray(`   Due: ${task.due} · ID: ${id}`))
     else console.log(chalk.gray(`   No due date · ID: ${id}`))
   }
+  await refreshDailyNote(config, { freshCalendar: false })
 }

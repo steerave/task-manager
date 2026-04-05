@@ -3,6 +3,7 @@ import { Config } from '../core/types'
 import { getTasksDir } from '../core/vaultScanner'
 import { taskFilePath, readTask, updateTask } from '../core/taskFile'
 import { filterToCanonical } from '../core/tagRegistry'
+import { refreshDailyNote } from '../core/noteRefresher'
 
 export interface UpdateOptions {
   name?: string
@@ -38,4 +39,5 @@ export async function updateTaskCmd(taskId: string, opts: UpdateOptions, config:
 
   await updateTask(filePath, updates)
   console.log(chalk.green(`Updated: ${task.name}`))
+  await refreshDailyNote(config, { freshCalendar: false })
 }
