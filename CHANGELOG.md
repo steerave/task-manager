@@ -23,6 +23,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Checkbox sync skips waiting tasks so they don't get re-marked as done
 - Shorthand task IDs — use just the sequence number (e.g., `task done 0011`) instead of the full ID
 - Global task sequence counter — numbers never reset, eliminating shorthand ID collisions across days
+- `task priority <id> <level>` command — quickly set task priority to high, medium, or low
 
 ## [0.1.0] - 2026-03-30
 

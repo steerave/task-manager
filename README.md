@@ -21,6 +21,7 @@ A personal CLI task manager that stores tasks as markdown files in your Obsidian
 - **Modified date tracking** — each task in the daily note shows when it was last touched, so you can spot stale tasks at a glance
 - **Shorthand task IDs** — use just the sequence number (e.g., `task done 0011`) instead of the full ID; the tool resolves it automatically
 - **Auto-refreshing daily note** — the daily note regenerates automatically after every `add`, `done`, `update`, `delete`, or `waiting` command, so it always reflects the current state without a manual `task today` run
+- **Priority shortcut** — `task priority <id> <level>` quickly sets a task's priority to high, medium, or low without going through `task update`
 - **Human-readable storage** — every task is a plain markdown file with YAML frontmatter, editable in Obsidian or any text editor
 
 ## Requirements
@@ -79,7 +80,10 @@ task list --done                       # Include completed tasks
 task done 260330-purchase-fruits-aldis-0001      # Mark done (full ID)
 task done 0001                                    # Mark done (shorthand)
 task waiting 0010                                 # Mark as waiting on someone else
-task update 260330-call-dentist-0001 --priority high   # Change priority
+task priority 0011 high                           # Set task priority to high
+task priority 0011 medium                         # Set task priority to medium
+task priority 0011 low                            # Set task priority to low
+task update 260330-call-dentist-0001 --priority high   # Change priority (via update)
 task update 260330-call-dentist-0001 --domain work     # Change domain
 task update 260330-call-dentist-0001 --due 2026-04-05  # Change due date
 task delete 260330-call-dentist-0001                   # Permanently delete
