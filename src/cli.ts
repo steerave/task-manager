@@ -9,6 +9,7 @@ import { listTasks } from './commands/list'
 import { markDone } from './commands/done'
 import { markWaiting } from './commands/waiting'
 import { updateTaskCmd } from './commands/update'
+import { setPriority } from './commands/priority'
 import { deleteTask } from './commands/delete'
 import { runToday } from './commands/today'
 import { listDomains, addDomain, listTags, addTag } from './commands/config'
@@ -93,6 +94,15 @@ program
     const config = await getConfig()
     const resolved = await resolveTaskId(id, config)
     await updateTaskCmd(resolved, opts, config)
+  })
+
+program
+  .command('priority <id> <level>')
+  .description('Set task priority (high | medium | low)')
+  .action(async (id: string, level: string) => {
+    const config = await getConfig()
+    const resolved = await resolveTaskId(id, config)
+    await setPriority(resolved, level, config)
   })
 
 program
