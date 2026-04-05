@@ -9,17 +9,36 @@ import { taskFilePath, readTask, updateTask } from '../core/taskFile'
 import { today } from '../utils/dateUtils'
 import { refreshDailyNote } from '../core/noteRefresher'
 
-function getDailyNoteFile(config: Config): string {
-  const dateStr = dayjs().format('YYYYMMDD')
-  return path.join(config.vaultPath, 'DailyNotes', `${dateStr} - Daily Task.md`)
+function getDailyNotesDir(config: Config): string {
+  return path.join(config.vaultPath, 'DailyNotes')
 }
 
-async function syncCheckboxes(config: Config, noteFile: string): Promise<number> {
-  if (!(await fs.pathExists(noteFile))) return 0
+function getDailyNoteFile(config: Config): string {
+  const dateStr = dayjs().format('YYYYMMDD')
+  return path.join(getDailyNotesDir(config), `${dateStr} - Daily Task.md`)
+}
 
-  const content = await fs.readFile(noteFile, 'utf8')
-  const checkedIds = parseCheckedTaskIds(content)
-  if (checkedIds.length === 0) return 0
+async function collectCheckedIds(config: Config): Promise<Set<string>> {
+  const dir = getDailyNotesDir(config)
+  if (!(await fs.pathExists(dir))) return new Set()
+
+  const files = await fs.readdir(dir)
+  const noteFiles = files.filter((f) => f.endsWith(' - Daily Task.md'))
+  const ids = new Set<string>()
+
+  for (const file of noteFiles) {
+    const content = await fs.readFile(path.join(dir, file), 'utf8')
+    for (const id of parseCheckedTaskIds(content)) {
+      ids.add(id)
+    }
+  }
+
+  return ids
+}
+
+async function syncCheckboxes(config: Config): Promise<number> {
+  const checkedIds = await collectCheckedIds(config)
+  if (checkedIds.size === 0) return 0
 
   const tasksDir = getTasksDir(config)
   let synced = 0
@@ -42,8 +61,8 @@ async function syncCheckboxes(config: Config, noteFile: string): Promise<number>
 export async function runToday(config: Config): Promise<void> {
   const noteFile = getDailyNoteFile(config)
 
-  // Step 1: Sync checkboxes from existing daily note
-  const synced = await syncCheckboxes(config, noteFile)
+  // Step 1: Sync checkboxes from all daily notes (catches items checked in prior days' notes)
+  const synced = await syncCheckboxes(config)
 
   // Step 2: Regenerate note with fresh calendar events
   await refreshDailyNote(config, { freshCalendar: true })
