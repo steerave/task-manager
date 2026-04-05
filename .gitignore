@@ -16,3 +16,4 @@ coverage/
 # Runtime state (lives in the vault, not the repo)
 .task-index.json
 config.json
+.calendar-cache.json
