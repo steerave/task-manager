@@ -20,6 +20,7 @@ A personal CLI task manager that stores tasks as markdown files in your Obsidian
 - **Completed today tracking** — tasks you finish today stay in the daily note as checked-off items so you can see what you accomplished
 - **Modified date tracking** — each task in the daily note shows when it was last touched, so you can spot stale tasks at a glance
 - **Shorthand task IDs** — use just the sequence number (e.g., `task done 0011`) instead of the full ID; the tool resolves it automatically
+- **Auto-refreshing daily note** — the daily note regenerates automatically after every `add`, `done`, `update`, `delete`, or `waiting` command, so it always reflects the current state without a manual `task today` run
 - **Human-readable storage** — every task is a plain markdown file with YAML frontmatter, editable in Obsidian or any text editor
 
 ## Requirements

@@ -9,6 +9,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Calendar events from adjacent days (e.g., tomorrow's all-day events) no longer leak into today's Events section
 
 ### Added
+- Daily note auto-regenerates after every task mutation (add, done, update, delete, waiting) — no need to run `task today` manually after each change
 - Modified date shown on each task in the daily note — uses filesystem mtime so edits from both the CLI and Obsidian are captured
 - `task calendar add` command — create events on iCloud Home calendar using natural language
 - `task calendar today` command — regenerate daily note with fresh calendar events
