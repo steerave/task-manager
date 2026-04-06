@@ -83,4 +83,17 @@ describe('parseTaskInput', () => {
     const result = parseTaskInput('Urgent: fix production bug for work', mockConfig)
     expect(result.name).toBe('fix production bug')
   })
+
+  it('strips "domain" keyword after domain name', () => {
+    const result = parseTaskInput('Paper document Auto-Organization due next Friday 5pm, Projects domain', mockConfig)
+    expect(result.tags).toContain('projects')
+    expect(result.name).not.toContain('domain')
+    expect(result.name).not.toMatch(/,\s*$/)
+  })
+
+  it('strips standalone domain name without "domain" keyword', () => {
+    const result = parseTaskInput('Tax generator due next Friday at noon, Projects', mockConfig)
+    expect(result.tags).toContain('projects')
+    expect(result.name).not.toMatch(/,\s*$/)
+  })
 })

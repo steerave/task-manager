@@ -104,9 +104,11 @@ export function parseTaskInput(input: string, _config: Config): ParsedInput {
   // Clean up name: remove date phrase, "due" keyword, and domain keywords
   let name = stripDatePhrase(input)
   name = stripDomainPhrases(name)
+  // Remove the literal word "domain" (used as a hint, not part of the task name)
+  name = name.replace(/\bdomain\b/gi, '')
   // Remove priority keywords and standalone "due" from name
   name = name.replace(/\b(urgent|ASAP|critical|important|no rush|whenever|someday|due)\b/gi, '')
-  name = name.replace(/^[\s\-:,]+/, '').replace(/[-:,]+$/, '').replace(/\s+/g, ' ').trim()
+  name = name.replace(/^[\s\-:,]+/, '').replace(/[\s\-:,]+$/, '').replace(/\s+/g, ' ').trim()
 
   return { name, due, tags, needsInbox }
 }
