@@ -18,6 +18,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Calendar events from adjacent days (e.g., tomorrow's all-day events) no longer leak into today's Events section
 
 ### Added
+- **This Week's Calendar** section at the bottom of the daily note — shows upcoming events for the rest of the week grouped by day with titles, dates, and times
 - Auto-archive old daily notes — every note regeneration moves non-today notes into `DailyNotes/Archive/`, keeping only today's note at the top level. Checkbox sync scans the archive too.
 - Daily note auto-regenerates after every task mutation (add, done, update, delete, waiting) — no need to run `task today` manually after each change
 - Modified date shown on each task in the daily note — uses filesystem mtime so edits from both the CLI and Obsidian are captured

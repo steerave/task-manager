@@ -7,7 +7,7 @@ import { getTasksDir, scanTasks } from './vaultScanner'
 import { generateDailyNote, parseCheckedTaskIds } from './dailyNoteGenerator'
 import { taskFilePath, readTask, updateTask } from './taskFile'
 import { today } from '../utils/dateUtils'
-import { fetchTodayEvents } from '../calendar/icloudClient'
+import { fetchTodayEvents, fetchWeekEvents } from '../calendar/icloudClient'
 import { CalendarEvent } from '../calendar/types'
 
 export interface RefreshOptions {
@@ -17,6 +17,7 @@ export interface RefreshOptions {
 interface CalendarCache {
   date: string
   events: CalendarEvent[]
+  weekEvents?: CalendarEvent[]
 }
 
 function dailyNotePath(config: Config): string {
@@ -28,24 +29,25 @@ function cachePath(config: Config): string {
   return path.join(config.vaultPath, '.calendar-cache.json')
 }
 
-async function readCachedEvents(config: Config): Promise<CalendarEvent[]> {
+async function readCachedEvents(config: Config): Promise<{ events: CalendarEvent[]; weekEvents: CalendarEvent[] }> {
   const file = cachePath(config)
-  if (!(await fs.pathExists(file))) return []
+  if (!(await fs.pathExists(file))) return { events: [], weekEvents: [] }
   try {
     const raw = await fs.readFile(file, 'utf8')
     const cache = JSON.parse(raw) as CalendarCache
     const today = dayjs().format('YYYY-MM-DD')
-    if (cache.date !== today) return []
-    return cache.events
+    if (cache.date !== today) return { events: [], weekEvents: [] }
+    return { events: cache.events, weekEvents: cache.weekEvents ?? [] }
   } catch {
-    return []
+    return { events: [], weekEvents: [] }
   }
 }
 
-async function writeCachedEvents(config: Config, events: CalendarEvent[]): Promise<void> {
+async function writeCachedEvents(config: Config, events: CalendarEvent[], weekEvents: CalendarEvent[]): Promise<void> {
   const cache: CalendarCache = {
     date: dayjs().format('YYYY-MM-DD'),
     events,
+    weekEvents,
   }
   await fs.writeFile(cachePath(config), JSON.stringify(cache, null, 2), 'utf8')
 }
@@ -138,6 +140,7 @@ export async function refreshDailyNote(config: Config, options: RefreshOptions):
   const tasks = await scanTasks(config)
 
   let events: CalendarEvent[] = []
+  let weekEvents: CalendarEvent[] = []
   if (options.freshCalendar) {
     try {
       events = await fetchTodayEvents()
@@ -145,15 +148,22 @@ export async function refreshDailyNote(config: Config, options: RefreshOptions):
       console.log(chalk.yellow(`Warning: Could not fetch calendar events: ${err.message}`))
     }
     try {
-      await writeCachedEvents(config, events)
+      weekEvents = await fetchWeekEvents()
+    } catch (err: any) {
+      console.log(chalk.yellow(`Warning: Could not fetch week events: ${err.message}`))
+    }
+    try {
+      await writeCachedEvents(config, events, weekEvents)
     } catch (err: any) {
       console.log(chalk.yellow(`Warning: Could not write calendar cache: ${err.message}`))
     }
   } else {
-    events = await readCachedEvents(config)
+    const cached = await readCachedEvents(config)
+    events = cached.events
+    weekEvents = cached.weekEvents
   }
 
-  const note = generateDailyNote(tasks, events)
+  const note = generateDailyNote(tasks, { events, weekEvents })
   await fs.writeFile(noteFile, note, 'utf8')
 
   // Move older daily notes into Archives/

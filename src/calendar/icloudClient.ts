@@ -113,6 +113,71 @@ export async function fetchTodayEvents(): Promise<CalendarEvent[]> {
   return todayEvents
 }
 
+export async function fetchWeekEvents(): Promise<CalendarEvent[]> {
+  const client = await getClient()
+  if (!client) return []
+
+  const calendar = await getCalendar(client)
+  if (!calendar) return []
+
+  const now = new Date()
+  // Start from tomorrow, end at the following Sunday (end of week)
+  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+  const dayOfWeek = now.getDay() // 0=Sun, 6=Sat
+  const daysUntilSunday = dayOfWeek === 0 ? 7 : 7 - dayOfWeek
+  const endOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysUntilSunday + 1)
+
+  const objects = await client.fetchCalendarObjects({
+    calendar,
+    timeRange: {
+      start: tomorrow.toISOString(),
+      end: endOfWeek.toISOString(),
+    },
+  })
+
+  const ical = await import('node-ical')
+  const events: CalendarEvent[] = []
+
+  const tomorrowStr = `${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`
+  const endStr = `${endOfWeek.getFullYear()}-${pad(endOfWeek.getMonth() + 1)}-${pad(endOfWeek.getDate())}`
+
+  for (const obj of objects) {
+    if (!obj.data) continue
+    const parsed = ical.sync.parseICS(obj.data)
+    for (const key of Object.keys(parsed)) {
+      const comp = parsed[key]
+      if (!comp || comp.type !== 'VEVENT') continue
+
+      const vevent = comp as VEvent
+      const start = parseICSDate(vevent.start as Date | string)
+      const end = vevent.end ? parseICSDate(vevent.end as Date | string) : null
+      const isAllDay = !start.time
+
+      if (start.date < tomorrowStr || start.date >= endStr) continue
+
+      events.push({
+        uid: vevent.uid ?? key,
+        name: (typeof vevent.summary === 'string' ? vevent.summary : vevent.summary?.val) ?? 'Untitled event',
+        date: start.date,
+        startTime: start.time,
+        endTime: end?.time ?? null,
+        isAllDay,
+      })
+    }
+  }
+
+  // Sort by date, then timed events before all-day, then by start time
+  events.sort((a, b) => {
+    if (a.date !== b.date) return a.date.localeCompare(b.date)
+    if (a.isAllDay && !b.isAllDay) return 1
+    if (!a.isAllDay && b.isAllDay) return -1
+    if (a.startTime && b.startTime) return a.startTime.localeCompare(b.startTime)
+    return 0
+  })
+
+  return events
+}
+
 export async function createEvent(
   name: string,
   date: string,
