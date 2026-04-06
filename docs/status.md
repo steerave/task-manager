@@ -3,6 +3,10 @@
 ## 2026-04-05
 
 **Done:**
+- Move checkbox sync into `noteRefresher` so it runs before every daily note regeneration, not just `task today` — fixes tasks reopening when running `task done`/`task add` after checking boxes in Obsidian
+- Strip literal word "domain" from parsed task names (e.g., "Projects domain" no longer leaves "domain" in the title)
+- Auto-archive old daily notes into `DailyNotes/Archive/` on every note regeneration, keeping only today's note at the top level
+- Checkbox sync now scans both `DailyNotes/` and `DailyNotes/Archive/` so archived notes still contribute to task completion
 - Fix checkbox sync to scan all prior daily notes, not just today's — items checked off in yesterday's note now sync on next `task today` run
 - Rename domain `personal-projects` → `projects` across source, tests, docs, config, and existing task files; parser now recognizes the bare word "project"/"projects"
 
