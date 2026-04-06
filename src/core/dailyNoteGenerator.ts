@@ -74,7 +74,14 @@ function completedTaskLine(task: Task): string {
   return `- [x] [[${task.id}|${task.name}]] — ${domain} <!-- task:${task.id} -->`
 }
 
-export function generateDailyNote(tasks: Task[], events?: CalendarEvent[]): string {
+export interface DailyNoteOptions {
+  events?: CalendarEvent[]
+  weekEvents?: CalendarEvent[]
+}
+
+export function generateDailyNote(tasks: Task[], options?: DailyNoteOptions): string {
+  const events = options?.events
+  const weekEvents = options?.weekEvents
   const dateStr = dayjs().format('MMMM D, YYYY')
   const timestamp = dayjs().format('YYYY-MM-DD HH:mm')
 
@@ -139,6 +146,25 @@ export function generateDailyNote(tasks: Task[], events?: CalendarEvent[]): stri
   if (completedToday.length > 0) {
     sections.push('### Completed Today')
     completedToday.forEach((t) => sections.push(completedTaskLine(t)))
+    sections.push('')
+  }
+
+  // ── This Week's Calendar ──
+  if (weekEvents && weekEvents.length > 0) {
+    sections.push('### This Week\'s Calendar')
+    sections.push('')
+    let currentDate = ''
+    for (const event of weekEvents) {
+      if (event.date !== currentDate) {
+        currentDate = event.date
+        sections.push(`**${dayjs(event.date).format('ddd, MMM D')}**`)
+      }
+      if (event.isAllDay) {
+        sections.push(`- ${event.name} *(all day)*`)
+      } else {
+        sections.push(`- ${event.startTime}–${event.endTime} · ${event.name}`)
+      }
+    }
     sections.push('')
   }
 

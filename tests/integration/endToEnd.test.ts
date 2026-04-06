@@ -7,6 +7,11 @@ import { runToday } from '../../src/commands/today'
 import { scanTasks } from '../../src/core/vaultScanner'
 import { Config } from '../../src/core/types'
 
+vi.mock('../../src/calendar/icloudClient', () => ({
+  fetchTodayEvents: vi.fn().mockResolvedValue([]),
+  fetchWeekEvents: vi.fn().mockResolvedValue([]),
+}))
+
 describe('End-to-End: add → check off in Obsidian → /today marks done', () => {
   let tmpDir: string
   let config: Config

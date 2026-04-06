@@ -107,7 +107,7 @@ describe('dailyNoteGenerator', () => {
       { uid: 'e1', name: 'Team standup', date: '2026-03-29', startTime: '09:00', endTime: '09:30', isAllDay: false },
       { uid: 'e2', name: 'Holiday', date: '2026-03-29', startTime: null, endTime: null, isAllDay: true },
     ]
-    const note = generateDailyNote(tasks, events)
+    const note = generateDailyNote(tasks, { events })
     expect(note).toContain('### Events')
     expect(note).toContain('09:00–09:30 · Team standup')
     expect(note).toContain('Holiday *(all day)*')
@@ -132,7 +132,7 @@ describe('dailyNoteGenerator', () => {
       { id: 'w', name: 'Waiting item', due: '2026-04-01', tags: ['personal', 'priority/medium', 'status/waiting'], created: '2026-03-29', completed: null },
       { id: 'd', name: 'Done item', due: '2026-03-29', tags: ['work', 'priority/low', 'status/done'], created: '2026-03-29', completed: '2026-03-29' },
     ]
-    const note = generateDailyNote(withAll, events)
+    const note = generateDailyNote(withAll, { events })
     const idxOpen = note.indexOf('### All Open Tasks')
     const idxWaiting = note.indexOf('### Waiting On')
     const idxEvents = note.indexOf('### Events')
