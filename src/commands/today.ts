@@ -12,8 +12,11 @@ function getDailyNoteFile(config: Config): string {
 export async function runToday(config: Config): Promise<void> {
   const noteFile = getDailyNoteFile(config)
 
-  const { synced } = await refreshDailyNote(config, { freshCalendar: true })
+  const { synced, archived } = await refreshDailyNote(config, { freshCalendar: true })
 
   console.log(chalk.green(`Notes updated: ${synced} tasks marked done`))
+  if (archived > 0) {
+    console.log(chalk.gray(`   Archived ${archived} old note${archived === 1 ? '' : 's'}`))
+  }
   console.log(chalk.gray(`   ${noteFile}`))
 }

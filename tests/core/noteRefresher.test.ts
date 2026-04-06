@@ -119,7 +119,7 @@ describe('noteRefresher', () => {
 
   it('gracefully handles iCloud fetch errors when freshCalendar is true', async () => {
     ;(fetchTodayEvents as any).mockRejectedValue(new Error('network fail'))
-    await expect(refreshDailyNote(config, { freshCalendar: true })).resolves.toEqual({ synced: 0 })
+    await expect(refreshDailyNote(config, { freshCalendar: true })).resolves.toMatchObject({ synced: 0 })
     const noteFile = path.join(vaultPath, 'DailyNotes', '20260404 - Daily Task.md')
     expect(await fs.pathExists(noteFile)).toBe(true)
     const content = await fs.readFile(noteFile, 'utf8')

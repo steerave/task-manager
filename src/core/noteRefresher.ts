@@ -54,22 +54,56 @@ function getDailyNotesDir(config: Config): string {
   return path.join(config.vaultPath, 'DailyNotes')
 }
 
+function getArchiveDir(config: Config): string {
+  return path.join(getDailyNotesDir(config), 'Archive')
+}
+
+async function collectNoteFiles(dir: string): Promise<string[]> {
+  if (!(await fs.pathExists(dir))) return []
+  const files = await fs.readdir(dir)
+  return files.filter((f) => f.endsWith(' - Daily Task.md')).map((f) => path.join(dir, f))
+}
+
 async function collectCheckedIds(config: Config): Promise<Set<string>> {
   const dir = getDailyNotesDir(config)
-  if (!(await fs.pathExists(dir))) return new Set()
+  const archiveDir = getArchiveDir(config)
 
-  const files = await fs.readdir(dir)
-  const noteFiles = files.filter((f) => f.endsWith(' - Daily Task.md'))
+  // Scan both top-level and Archives for checked checkboxes
+  const allFiles = [
+    ...(await collectNoteFiles(dir)),
+    ...(await collectNoteFiles(archiveDir)),
+  ]
+
   const ids = new Set<string>()
-
-  for (const file of noteFiles) {
-    const content = await fs.readFile(path.join(dir, file), 'utf8')
+  for (const file of allFiles) {
+    const content = await fs.readFile(file, 'utf8')
     for (const id of parseCheckedTaskIds(content)) {
       ids.add(id)
     }
   }
 
   return ids
+}
+
+async function archiveOldNotes(config: Config): Promise<number> {
+  const dir = getDailyNotesDir(config)
+  const archiveDir = getArchiveDir(config)
+  const todayPrefix = dayjs().format('YYYYMMDD')
+
+  const files = await fs.readdir(dir)
+  const oldNotes = files.filter(
+    (f) => f.endsWith(' - Daily Task.md') && !f.startsWith(todayPrefix)
+  )
+
+  if (oldNotes.length === 0) return 0
+
+  await fs.ensureDir(archiveDir)
+
+  for (const file of oldNotes) {
+    await fs.move(path.join(dir, file), path.join(archiveDir, file), { overwrite: true })
+  }
+
+  return oldNotes.length
 }
 
 async function syncCheckboxes(config: Config): Promise<number> {
@@ -94,7 +128,7 @@ async function syncCheckboxes(config: Config): Promise<number> {
   return synced
 }
 
-export async function refreshDailyNote(config: Config, options: RefreshOptions): Promise<{ synced: number }> {
+export async function refreshDailyNote(config: Config, options: RefreshOptions): Promise<{ synced: number; archived: number }> {
   const noteFile = dailyNotePath(config)
   await fs.ensureDir(path.dirname(noteFile))
 
@@ -122,5 +156,8 @@ export async function refreshDailyNote(config: Config, options: RefreshOptions):
   const note = generateDailyNote(tasks, events)
   await fs.writeFile(noteFile, note, 'utf8')
 
-  return { synced }
+  // Move older daily notes into Archives/
+  const archived = await archiveOldNotes(config)
+
+  return { synced, archived }
 }
