@@ -1,5 +1,11 @@
 # Project Status Log
 
+## 2026-04-06
+
+**Done:**
+- Add "This Week's Calendar" section to daily note — fetches upcoming events for the rest of the week from iCloud, grouped by day with titles, dates, and times
+- Week events cached alongside today's events so mutation commands don't re-hit the iCloud API
+
 ## 2026-04-05
 
 **Done:**
