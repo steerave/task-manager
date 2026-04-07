@@ -14,9 +14,13 @@ function formatICSDate(dateStr: string, timeStr: string | null): string {
   return `${year}${month}${day}T${hours}${minutes}00`
 }
 
+function dateToStr(d: Date): string {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
 function parseICSDate(icsDate: string | Date): { date: string; time: string | null } {
   if (icsDate instanceof Date) {
-    const date = `${icsDate.getFullYear()}-${pad(icsDate.getMonth() + 1)}-${pad(icsDate.getDate())}`
+    const date = dateToStr(icsDate)
     const hours = icsDate.getHours()
     const minutes = icsDate.getMinutes()
     if (hours === 0 && minutes === 0) return { date, time: null }
@@ -27,6 +31,62 @@ function parseICSDate(icsDate: string | Date): { date: string; time: string | nu
   if (str.length <= 8) return { date, time: null }
   const time = `${str.slice(9, 11)}:${str.slice(11, 13)}`
   return { date, time }
+}
+
+function expandEvents(
+  objects: { data?: string }[],
+  rangeStart: Date,
+  rangeEnd: Date,
+  ical: typeof import('node-ical'),
+): CalendarEvent[] {
+  const events: CalendarEvent[] = []
+  const startStr = dateToStr(rangeStart)
+  const endStr = dateToStr(rangeEnd)
+
+  for (const obj of objects) {
+    if (!obj.data) continue
+    const parsed = ical.sync.parseICS(obj.data)
+    for (const key of Object.keys(parsed)) {
+      const comp = parsed[key]
+      if (!comp || comp.type !== 'VEVENT') continue
+
+      const vevent = comp as VEvent
+      const name = (typeof vevent.summary === 'string' ? vevent.summary : vevent.summary?.val) ?? 'Untitled event'
+      const start = parseICSDate(vevent.start as Date | string)
+      const end = vevent.end ? parseICSDate(vevent.end as Date | string) : null
+      const isAllDay = !start.time
+
+      if (vevent.rrule) {
+        // Expand recurring event occurrences within the range
+        const occurrences = vevent.rrule.between(rangeStart, rangeEnd, true)
+        for (const occ of occurrences) {
+          const occDate = dateToStr(occ)
+          if (occDate < startStr || occDate >= endStr) continue
+          events.push({
+            uid: `${vevent.uid ?? key}-${occDate}`,
+            name,
+            date: occDate,
+            startTime: start.time,
+            endTime: end?.time ?? null,
+            isAllDay,
+          })
+        }
+      } else {
+        // Non-recurring: use original start date
+        if (start.date < startStr || start.date >= endStr) continue
+        events.push({
+          uid: vevent.uid ?? key,
+          name,
+          date: start.date,
+          startTime: start.time,
+          endTime: end?.time ?? null,
+          isAllDay,
+        })
+      }
+    }
+  }
+
+  return events
 }
 
 async function getClient(): Promise<DAVClient | null> {
@@ -73,44 +133,17 @@ export async function fetchTodayEvents(): Promise<CalendarEvent[]> {
   })
 
   const ical = await import('node-ical')
-  const events: CalendarEvent[] = []
-
-  for (const obj of objects) {
-    if (!obj.data) continue
-    const parsed = ical.sync.parseICS(obj.data)
-    for (const key of Object.keys(parsed)) {
-      const comp = parsed[key]
-      if (!comp || comp.type !== 'VEVENT') continue
-
-      const vevent = comp as VEvent
-      const start = parseICSDate(vevent.start as Date | string)
-      const end = vevent.end ? parseICSDate(vevent.end as Date | string) : null
-      const isAllDay = !start.time
-
-      events.push({
-        uid: vevent.uid ?? key,
-        name: (typeof vevent.summary === 'string' ? vevent.summary : vevent.summary?.val) ?? 'Untitled event',
-        date: start.date,
-        startTime: start.time,
-        endTime: end?.time ?? null,
-        isAllDay,
-      })
-    }
-  }
-
-  // Filter to only events whose date matches today
-  const todayStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
-  const todayEvents = events.filter(e => e.date === todayStr)
+  const events = expandEvents(objects, startOfDay, endOfDay, ical)
 
   // Sort: timed events by start time, all-day events last
-  todayEvents.sort((a, b) => {
+  events.sort((a, b) => {
     if (a.isAllDay && !b.isAllDay) return 1
     if (!a.isAllDay && b.isAllDay) return -1
     if (a.startTime && b.startTime) return a.startTime.localeCompare(b.startTime)
     return 0
   })
 
-  return todayEvents
+  return events
 }
 
 export async function fetchWeekEvents(): Promise<CalendarEvent[]> {
@@ -136,35 +169,7 @@ export async function fetchWeekEvents(): Promise<CalendarEvent[]> {
   })
 
   const ical = await import('node-ical')
-  const events: CalendarEvent[] = []
-
-  const tomorrowStr = `${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`
-  const endStr = `${endOfWeek.getFullYear()}-${pad(endOfWeek.getMonth() + 1)}-${pad(endOfWeek.getDate())}`
-
-  for (const obj of objects) {
-    if (!obj.data) continue
-    const parsed = ical.sync.parseICS(obj.data)
-    for (const key of Object.keys(parsed)) {
-      const comp = parsed[key]
-      if (!comp || comp.type !== 'VEVENT') continue
-
-      const vevent = comp as VEvent
-      const start = parseICSDate(vevent.start as Date | string)
-      const end = vevent.end ? parseICSDate(vevent.end as Date | string) : null
-      const isAllDay = !start.time
-
-      if (start.date < tomorrowStr || start.date >= endStr) continue
-
-      events.push({
-        uid: vevent.uid ?? key,
-        name: (typeof vevent.summary === 'string' ? vevent.summary : vevent.summary?.val) ?? 'Untitled event',
-        date: start.date,
-        startTime: start.time,
-        endTime: end?.time ?? null,
-        isAllDay,
-      })
-    }
-  }
+  const events = expandEvents(objects, tomorrow, endOfWeek, ical)
 
   // Sort by date, then timed events before all-day, then by start time
   events.sort((a, b) => {

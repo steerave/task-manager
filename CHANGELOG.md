@@ -12,6 +12,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `task today` now always fetches fresh calendar events; mutation commands use a cached copy (`.calendar-cache.json` in the vault) to avoid redundant iCloud API calls.
 
 ### Fixed
+- Recurring calendar events (weekly, etc.) now correctly appear in both today's Events and This Week's Calendar sections — previously only showed if the original event start date fell within the range
 - Checkbox sync now runs before every daily note regeneration (add, done, update, delete, etc.) — previously only ran during `task today`, so checking boxes in Obsidian then running any other command would overwrite the checks
 - Parser now strips the literal word "domain" from task names (e.g., "Projects domain" no longer leaves "domain" in the title)
 - Checkbox sync now scans all prior daily notes, not just today's — checking off a task in yesterday's note (or any older daily note) will correctly mark it done on the next `task today` run
