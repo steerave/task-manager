@@ -17,3 +17,4 @@ coverage/
 .task-index.json
 config.json
 .calendar-cache.json
+CLAUDE.md
