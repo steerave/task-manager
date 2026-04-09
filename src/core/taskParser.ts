@@ -36,14 +36,44 @@ const CATEGORY_RULES: Array<{ patterns: RegExp[]; category: string }> = [
   { patterns: [/\badmin\b/i, /\bpaperwork\b/i, /\bforms?\b/i, /\bsubmit\b/i], category: 'admin' },
 ]
 
-function stripDatePhrase(input: string): string {
-  const results = chrono.parse(input, new Date())
-  if (results.length === 0) return input
-  let cleaned = input
-  for (const result of results) {
-    cleaned = cleaned.slice(0, result.index) + cleaned.slice(result.index + result.text.length)
+/**
+ * Split input into task name portion and date portion.
+ * Only parse dates from text after a "due"/"by"/"on"/"before" keyword,
+ * or from a trailing date phrase (e.g., "tomorrow", "next Friday", "4/15").
+ * This prevents chrono from eating words like "sun" (Sunday) in "sun room".
+ */
+function splitDatePhrase(input: string): { namePart: string; due: Date | null } {
+  // Try to find a "due/by/before/on" keyword that introduces a date phrase
+  const dueMatch = input.match(/\b(due|by|before)\s+/i)
+  if (dueMatch && dueMatch.index !== undefined) {
+    const beforeDue = input.slice(0, dueMatch.index)
+    const afterDue = input.slice(dueMatch.index + dueMatch[0].length)
+    const parsed = chrono.parseDate(afterDue, new Date())
+    if (parsed) {
+      // Strip the matched date text from the afterDue portion
+      const results = chrono.parse(afterDue, new Date())
+      let cleanedAfter = afterDue
+      for (const result of results) {
+        cleanedAfter = cleanedAfter.slice(0, result.index) + cleanedAfter.slice(result.index + result.text.length)
+      }
+      cleanedAfter = cleanedAfter.replace(/\s+/g, ' ').trim()
+      const namePart = (beforeDue + ' ' + cleanedAfter).replace(/\s+/g, ' ').trim()
+      return { namePart, due: parsed }
+    }
   }
-  return cleaned.replace(/\s+/g, ' ').trim()
+
+  // Fallback: try parsing the whole string but only accept dates at
+  // the end of the input (last result) to avoid mid-sentence false positives
+  const results = chrono.parse(input, new Date())
+  if (results.length > 0) {
+    const last = results[results.length - 1]
+    const parsed = last.start.date()
+    let cleaned = input.slice(0, last.index) + input.slice(last.index + last.text.length)
+    cleaned = cleaned.replace(/\s+/g, ' ').trim()
+    return { namePart: cleaned, due: parsed }
+  }
+
+  return { namePart: input, due: null }
 }
 
 function stripDomainPhrases(input: string): string {
@@ -58,9 +88,9 @@ function stripDomainPhrases(input: string): string {
 export function parseTaskInput(input: string, _config: Config): ParsedInput {
   const tags: string[] = []
 
-  // Parse due date — pass current Date() so fake timers in tests work
-  const parsed = chrono.parseDate(input, new Date())
-  const due = parsed ? toISODate(parsed) : null
+  // Parse due date and extract task name in one pass
+  const { namePart, due: parsedDate } = splitDatePhrase(input)
+  const due = parsedDate ? toISODate(parsedDate) : null
 
   // Infer domain
   let foundDomain: string | null = null
@@ -101,8 +131,8 @@ export function parseTaskInput(input: string, _config: Config): ParsedInput {
     }
   }
 
-  // Clean up name: remove date phrase, "due" keyword, and domain keywords
-  let name = stripDatePhrase(input)
+  // Clean up name: remove domain keywords and metadata
+  let name = namePart
   name = stripDomainPhrases(name)
   // Remove the literal word "domain" (used as a hint, not part of the task name)
   name = name.replace(/\bdomain\b/gi, '')

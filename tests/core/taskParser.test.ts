@@ -96,4 +96,16 @@ describe('parseTaskInput', () => {
     expect(result.tags).toContain('projects')
     expect(result.name).not.toMatch(/,\s*$/)
   })
+
+  it('does not eat "sun" in "sun room" as Sunday', () => {
+    const result = parseTaskInput('Light bulb - change in sun room due today, Personal domain', mockConfig)
+    expect(result.name).toContain('sun room')
+    expect(result.due).toBe('2026-03-29') // today in test time
+  })
+
+  it('parses date from "due" keyword, not from mid-sentence words', () => {
+    const result = parseTaskInput('Buy March madness tickets due next Friday, Personal domain', mockConfig)
+    expect(result.name).toContain('March madness')
+    expect(result.due).toMatch(/^2026-04/) // next Friday, not a March date
+  })
 })
