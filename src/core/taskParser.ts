@@ -56,7 +56,7 @@ function splitDatePhrase(input: string): { namePart: string; due: Date | null } 
       for (const result of results) {
         cleanedAfter = cleanedAfter.slice(0, result.index) + cleanedAfter.slice(result.index + result.text.length)
       }
-      cleanedAfter = cleanedAfter.replace(/\s+/g, ' ').trim()
+      cleanedAfter = cleanedAfter.replace(/^\s*[.,;:]+\s*/, '').replace(/\s+/g, ' ').trim()
       const namePart = (beforeDue + ' ' + cleanedAfter).replace(/\s+/g, ' ').trim()
       return { namePart, due: parsed }
     }
@@ -138,7 +138,7 @@ export function parseTaskInput(input: string, _config: Config): ParsedInput {
   name = name.replace(/\bdomain\b/gi, '')
   // Remove priority keywords and standalone "due" from name
   name = name.replace(/\b(urgent|ASAP|critical|important|no rush|whenever|someday|due)\b/gi, '')
-  name = name.replace(/^[\s\-:,]+/, '').replace(/[\s\-:,]+$/, '').replace(/\s+/g, ' ').trim()
+  name = name.replace(/^[\s\-:,.]+/, '').replace(/[\s\-:,.]+$/, '').replace(/\s+/g, ' ').trim()
 
   return { name, due, tags, needsInbox }
 }
