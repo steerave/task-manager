@@ -1,5 +1,7 @@
 # Task Manager
 
+![CI](https://github.com/steerave/task-manager/actions/workflows/ci.yml/badge.svg)
+
 A personal CLI task manager that stores tasks as markdown files in your Obsidian vault. Add tasks in plain English, get organized daily summaries, and check off tasks directly in Obsidian.
 
 ## Features
