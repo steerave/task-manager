@@ -5,6 +5,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- GitHub Actions CI workflow runs lint, build, and tests on every push and PR to `main` (Node 20.x). README shows a CI status badge.
+
 ### Fixed
 - Task names containing periods (e.g. "due today." or "Skills.md") no longer get mangled — punctuation left over after date parsing is now stripped cleanly
 
